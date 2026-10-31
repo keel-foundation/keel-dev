@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help bootstrap infra-up infra-down infra-logs core-dev pipeline-dev moderation-dev web-dev demo seed-alpha rfc-discussion test fmt publish
+.PHONY: help bootstrap infra-up infra-down infra-logs core-dev pipeline-dev moderation-dev web-dev demo seed-alpha rfc-discussion test fmt
 
 help:
 	@echo "TubeKeel workspace"
@@ -18,7 +18,6 @@ help:
 	@echo "  make rfc-discussion Open RFC-0001 in keel-spec Discussions"
 	@echo "  make test           Run available tests"
 	@echo "  make fmt            Format sources in the sibling repos"
-	@echo "  make publish        Create/push GitHub org repos (requires gh auth)"
 
 bootstrap:
 	./scripts/bootstrap-dev.sh
@@ -65,5 +64,3 @@ fmt:
 	@command -v ruff >/dev/null && [ -d keel-moderation ] && (cd keel-moderation && ruff format .) || true
 	@[ -d keel-web ] && [ -d keel-web/node_modules ] && (cd keel-web && npm run format) || true
 
-publish:
-	./scripts/publish-org.sh
