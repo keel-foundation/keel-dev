@@ -69,6 +69,7 @@ echo "→ starting moderation"
 PIDS+=($!)
 
 echo "→ starting web"
+rm -rf keel-web/.next
 (cd keel-web && PORT="$WEB_PORT" npm run dev) > .demo/web.log 2>&1 &
 PIDS+=($!)
 

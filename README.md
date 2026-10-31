@@ -61,7 +61,7 @@ The demo walks the creator-protection thesis:
 3. **Reverse on human review** — a reviewer reverses the action with written reasoning.
 4. **Inspect the ledger** — every step is a hash-chained audit record.
 
-Expected states: `active` → appeal `pending` → appeal `decided` / action `reversed`. The 90-second recording shot list is in [docs/demo-script.md](docs/demo-script.md).
+Expected states: `active` → appeal `pending` → appeal `decided` / action `reversed`. The 90-second recording shot list is in [docs/demo-script.md](docs/demo-script.md). The launch thread draft is in [docs/x-post.md](docs/x-post.md).
 
 ## RFC and alpha backlog
 
