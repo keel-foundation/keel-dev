@@ -22,11 +22,13 @@ port_in_use() {
   nc -z 127.0.0.1 "$1" >/dev/null 2>&1
 }
 
+USED_PORTS=()
 pick_port() {
   local port="$1"
-  while port_in_use "$port"; do
+  while port_in_use "$port" || [[ " ${USED_PORTS[*]:-} " == *" $port "* ]]; do
     port=$((port + 1))
   done
+  USED_PORTS+=("$port")
   printf '%s' "$port"
 }
 

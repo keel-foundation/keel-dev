@@ -26,7 +26,7 @@ github.com/keel-foundation/keel-dev
 **3/**
 This is not a YouTube clone.
 
-It's a protocol + reference implementation:
+The protocol is designed around:
 
 • PeerTube-compatible ActivityPub
 • creator-owned identity and export
@@ -68,7 +68,7 @@ RFC-0001 is open for 14 days:
 github.com/keel-foundation/keel-spec/discussions/1
 
 Good first issues:
-github.com/keel-foundation/keel-dev/issues?q=is%3Aissue+label%3Agood-first-issue
+github.com/orgs/keel-foundation/issues?q=is%3Aissue+is%3Aopen+label%3Agood-first-issue
 
 **8/**
 If you've lost a channel to a false positive, or you want to build the lifeboat, comment or DM.
