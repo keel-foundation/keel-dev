@@ -88,6 +88,8 @@ Apply:
 make harden-org
 ```
 
+If the API cannot set `two_factor_requirement_enabled` on this plan, enable 2FA manually in **Organization Settings → Authentication security**. The script prints a warning if the setting is still false after the run.
+
 This sets:
 
 - base repository permission to `none`;
@@ -112,6 +114,7 @@ This is idempotent and skips existing issues and milestones. It adds the `triage
 ## 5. Close or update stale issues
 
 - `keel-dev#2` (“One-command demo”) is implemented, including the fallback and cleanup behavior. Close it after the push.
+- Add the `triage` label to `keel-docs` and `.github` if the seed script was run before this fix. The updated seed script creates it for both.
 - `keel-dev#1` (“Seed data and demo reset”) is partially implemented: reset exists and appends a ledger record, but deterministic seeding is still open. Update the acceptance criteria rather than closing it.
 - `keel-moderation#2` (“Hash-chained audit ledger with export”) is implemented in the demo (append-only JSONL, verification, JSONL/CSV export). Update it to reflect that PostgreSQL and an external anchor remain open.
 

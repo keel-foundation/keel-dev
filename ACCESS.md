@@ -17,7 +17,7 @@ Required settings:
 
 - base repository permission: `none`;
 - members cannot create public, private, or internal repositories;
-- two-factor authentication required for every member;
+- two-factor authentication required for every member. If the API cannot set it, enable it manually in Organization Settings → Authentication security;
 - DCO sign-off required on the web; contributors must sign off locally and reviewers verify it. CI enforcement is a follow-up.
 - secret scanning, push protection, and Dependabot security updates enabled on public repos;
 - private vulnerability reporting enabled where available;

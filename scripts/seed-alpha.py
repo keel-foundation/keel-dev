@@ -86,6 +86,29 @@ def ensure_labels(repo: str) -> None:
         )
 
 
+def ensure_triage(repo: str) -> None:
+    existing = json.loads(run(["api", f"repos/{ORG}/{repo}/labels?per_page=100"]))
+    if any(item["name"] == "triage" for item in existing):
+        print(f"  skip label: triage ({repo})")
+        return
+    color, description = LABELS["triage"]
+    run(
+        [
+            "label",
+            "create",
+            "triage",
+            "--repo",
+            f"{ORG}/{repo}",
+            "--color",
+            color,
+            "--description",
+            description,
+            "--force",
+        ]
+    )
+    print(f"  created label: triage ({repo})")
+
+
 def create_issue(repo: str, title: str, body: str, labels: list[str], milestone: int) -> None:
     existing = json.loads(
         run(
@@ -374,6 +397,7 @@ def main() -> int:
             for issue_repo, title, body, labels in ISSUES:
                 if issue_repo == repo:
                     print(f"  would create issue: {title}")
+        print("would ensure label: triage (keel-docs, .github)")
         return 0
 
     try:
@@ -390,6 +414,10 @@ def main() -> int:
         for issue_repo, title, body, labels in ISSUES:
             if issue_repo == repo:
                 create_issue(repo, title, body, labels, milestone)
+
+    for repo in ("keel-docs", ".github"):
+        print(f"== {repo}")
+        ensure_triage(repo)
 
     print("\nDone. Review the issues and assign owners.")
     return 0

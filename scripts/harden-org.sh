@@ -100,5 +100,8 @@ done
 if [[ "$DRY_RUN" == "1" ]]; then
   echo "Dry run complete. No organization or repository settings were changed."
 else
+  if [[ "$(gh api "orgs/$ORG" --jq '.two_factor_requirement_enabled' 2>/dev/null || echo false)" != "true" ]]; then
+    echo "warning: 2FA is still disabled. Enable it in Settings > Authentication security or with an owner token that supports the org setting." >&2
+  fi
   echo "Done. Run ./scripts/protect-branches.sh after the CI workflows are pushed."
 fi
