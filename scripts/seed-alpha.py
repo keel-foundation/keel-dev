@@ -4,10 +4,11 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 
-ORG = "keel-foundation"
+ORG = os.environ.get("ORG", "keel-foundation")
 MILESTONE = "alpha-0.1"
 DUE = "2026-12-15T00:00:00Z"
 MILESTONE_DESCRIPTION = (
@@ -19,6 +20,7 @@ LABELS = {
     "alpha": ("0e8a16", "Alpha milestone work"),
     "good-first-issue": ("7057ff", "Scoped for a first contribution"),
     "needs-rfc": ("d4c5f9", "Requires an RFC before implementation"),
+    "triage": ("d93f0b", "Needs triage"),
 }
 
 
@@ -363,6 +365,17 @@ ISSUES = [
 
 
 def main() -> int:
+    dry_run = "--dry-run" in sys.argv[1:]
+    if dry_run:
+        for repo in sorted({item[0] for item in ISSUES}):
+            print(f"== {repo}")
+            print(f"  would ensure milestone {MILESTONE}")
+            print("  would ensure labels: " + ", ".join(LABELS))
+            for issue_repo, title, body, labels in ISSUES:
+                if issue_repo == repo:
+                    print(f"  would create issue: {title}")
+        return 0
+
     try:
         run(["auth", "status"])
     except RuntimeError as exc:

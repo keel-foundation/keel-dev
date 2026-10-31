@@ -3,11 +3,28 @@
 ## Principles
 
 1. **Least privilege.** Access is granted to a repository, not to the organization.
-2. **Repo-scoped teams.** Every write permission comes through a `*-maintainers`, `*-contributors`, or `*-triagers` team.
-3. **No org-wide write.** Organization membership grants no repository permission by default. Public repos are readable by everyone; private repos require a team.
+2. **Repo-scoped teams.** Every write permission comes through a `*-maintainers`, `*-contributors`, or `*-triagers` team. Specialized teams such as `security-reporters` are scoped the same way.
+3. **No org-wide access.** The organization base permission must be `none`. Organization membership must grant no repository permission by default. Public repos are readable by everyone; private repos require a team.
 4. **Two-person review.** Protected branches require a pull request and at least one approval; core, spec, moderation, governance, infra, and security require two.
 5. **No secrets in git.** Production credentials live in the deployment platform or a secrets manager, never in a repository.
 6. **Public by default for code and spec, private by default for governance, infrastructure, and security.**
+
+## Current organization settings
+
+Run `make harden-org` and `./scripts/protect-branches.sh` to apply these settings. The hardening script requires an owner token with `admin:org`: `gh auth refresh -s admin:org`. Run `./scripts/publish-org.sh --dry-run` to preview the repository, team, and protection changes.
+
+Required settings:
+
+- base repository permission: `none`;
+- members cannot create public, private, or internal repositories;
+- two-factor authentication required for every member;
+- DCO sign-off required on the web; contributors must sign off locally and reviewers verify it. CI enforcement is a follow-up.
+- secret scanning, push protection, and Dependabot security updates enabled on public repos;
+- private vulnerability reporting enabled where available;
+- required CI checks (after the CI workflows are pushed) and last-push approval on protected branches;
+- `enforce_admins` enabled once at least two maintainers are active.
+
+The organization currently uses GitHub Free. Native branch protection for private repositories requires GitHub Team or Enterprise. Until the organization upgrades, private repos are protected by policy, CODEOWNERS, and manual review only.
 
 ## Onboarding a contributor
 
@@ -17,7 +34,7 @@
 4. For issue triage only, grant the `triage` role on the matching `*-contributors` team.
 5. Record the access grant in the private governance repo's access log.
 
-A contributor to `keel-web` must not receive access to `keel-core`, `keel-moderation`, `keel-governance`, `keel-infra`, or `keel-security`.
+A contributor to `keel-web` must not receive write access to `keel-core`, `keel-moderation`, `keel-governance`, `keel-infra`, or `keel-security`. With the base permission set to `none`, team membership must not grant read access to private repos either.
 
 ## Offboarding
 
@@ -43,18 +60,18 @@ A contributor to `keel-web` must not receive access to `keel-core`, `keel-modera
 | `keel-infra` | 2 | Yes | No | Yes |
 | `keel-security` | 2 | Yes | No | Yes |
 
-Main must be protected on every repo. Direct pushes to main are disabled for everyone except a break-glass owner action, which must be logged.
+Main must be protected on every repo. Direct pushes to main are disabled for everyone except a break-glass owner action, which must be logged. Protected branches require the repository CI checks and approval of the last push.
 
 Branch protection on private repositories requires a GitHub plan that supports it. GitHub Free does not support native branch protection on private repos; the protection script detects this and skips those repos rather than failing.
 
-Until the organization is on GitHub Team or Enterprise, enforce the same rules manually for `keel-governance`, `keel-infra`, and `keel-security`:
+Until the organization is on GitHub Team or Enterprise, enforce the same rules manually for `keel-governance`, `keel-infra`, and `keel-security`. Record every break-glass push in the private governance access log:
 
 1. Keep write access to maintainers only.
 2. Require a pull request and two approvals in the repository's `CONTRIBUTING` guidance.
 3. Use `CODEOWNERS` as the review contract.
 4. Require environment approval for production deploys.
 5. Log any direct push to `main` in the private governance access log.
-6. Upgrade the plan when the project can afford it, then rerun `./scripts/protect-branches.sh`.
+6. Upgrade the plan when the project can afford it, then rerun `ENFORCE_ADMINS=true ./scripts/protect-branches.sh`.
 
 ## CODEOWNERS
 

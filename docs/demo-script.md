@@ -13,9 +13,12 @@ make demo
 Show the expected output:
 
 ```
+→ starting core and pipeline        # only when Go is installed
 → starting moderation
 → starting web
   moderation ready
+  core ready                        # only when Go is installed
+  pipeline ready                    # only when Go is installed
   web ready
 
 Demo:  http://localhost:3000/demo
@@ -29,9 +32,9 @@ Open `http://localhost:3000/demo`. Play the clip for two seconds.
 
 Say or caption:
 
-> Mara Vale published an original eight-second documentary. An automated classifier thinks it is mass-produced spam.
+> Mara Vale published an original eight-second documentary. A synthetic automated classifier signal says it is mass-produced spam.
 
-Point at the status badge: `published`, no enforcement action.
+Point at the status badge: `published`, no enforcement action. This is a local demo with a synthetic signal, not a production classifier.
 
 ## 20–35s — The false positive
 
@@ -44,7 +47,7 @@ Show:
 - evidence lines (`model: spam-v0.1`, `confidence: 0.91`);
 - the audit hash.
 
-Caption: “A decision with a specific reason, evidence, and a reviewer — not a generic ban.”
+Caption: “A decision with a specific reason, evidence, a case, and a reviewer — not a generic ban.”
 
 ## 35–50s — The appeal
 
@@ -65,13 +68,13 @@ Show:
 - reasoning text;
 - ledger records `appeal.decided` and `enforcement_action.reversed`.
 
-Caption: “A human can reverse the machine. The reversal is recorded forever.”
+Caption: “An independent appeals reviewer can reverse the machine. The reversal is appended to the ledger.”
 
 ## 65–78s — The ledger
 
-Scroll the audit ledger. Point at the chained hashes and sequence numbers.
+Scroll the audit ledger. Point at the sequence numbers, previous hashes, and record hashes. Click **Verify ledger** and show the valid-chain badge. Use **Export JSONL** to show that the record is portable.
 
-Caption: “Every step is tamper-evident and exportable. This is the part YouTube does not show you.”
+Caption: “Every step is hash-chained, append-only, verifiable, and exportable. This is the part YouTube does not show you.”
 
 ## 78–90s — Call to action
 
@@ -89,4 +92,4 @@ End on `github.com/keel-foundation`.
 
 macOS: QuickTime Player → File → New Screen Recording. Record the browser and terminal only. Export as `docs/demo-90s.mp4` and attach it to the launch post.
 
-If `make demo` skips `core` and `pipeline` because Go is not installed, the UI still works with the bundled sample clip; the appeal and ledger flow are unchanged.
+If `make demo` skips `core` and `pipeline` because Go is not installed, or if either service fails, the UI falls back to the bundled sample clip; the appeal and ledger flow are unchanged.

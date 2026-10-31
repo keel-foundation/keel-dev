@@ -3,6 +3,21 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+DRY_RUN=0
+if [[ "${1:-}" == "--dry-run" ]]; then
+  DRY_RUN=1
+fi
+
+run() {
+  if [[ "$DRY_RUN" == "1" ]]; then
+    printf 'would run:'
+    printf ' %q' "$@"
+    printf '\n'
+  else
+    "$@"
+  fi
+}
+
 if ! command -v gh >/dev/null 2>&1; then
   echo "gh is required: brew install gh && gh auth login" >&2
   exit 1
@@ -16,8 +31,8 @@ if ! git config user.email >/dev/null 2>&1; then
   exit 1
 fi
 
-./scripts/create-repos.sh
-./scripts/init-local-repos.sh
+run ./scripts/create-repos.sh
+run ./scripts/init-local-repos.sh
 
 commit_push() {
   local dir="$1"
@@ -26,28 +41,41 @@ commit_push() {
 
   if ! git -C "$dir" rev-parse --verify HEAD >/dev/null 2>&1; then
     echo "→ initial commit: $dir"
-    git -C "$dir" add -A
-    git -C "$dir" commit -m "chore: initial scaffold"
+    run git -C "$dir" add -A
+    run git -C "$dir" commit -m "chore: initial scaffold"
   fi
 
-  git -C "$dir" branch -M main
+  run git -C "$dir" branch -M main
   echo "→ pushing: $dir"
-  git -C "$dir" push -u "$remote_name" main
+  run git -C "$dir" push -u "$remote_name" main
 }
 
 echo "Pushing org community repo first..."
-[[ -d dot-github ]] && commit_push "dot-github"
+if [[ -d dot-github ]]; then
+  commit_push "dot-github"
+fi
 
 echo "Pushing workspace repo..."
 commit_push "."
 
 REPOS=(keel-spec keel-core keel-pipeline keel-web keel-moderation keel-docs keel-governance keel-infra keel-security)
 for repo in "${REPOS[@]}"; do
-  [[ -d "$repo" ]] && commit_push "$repo"
+  if [[ -d "$repo" ]]; then
+    commit_push "$repo"
+  fi
 done
 
-./scripts/create-teams.sh
-./scripts/protect-branches.sh
+run ./scripts/create-teams.sh
+run ./scripts/protect-branches.sh
+if [[ "${HARDEN:-0}" == "1" ]]; then
+  run ./scripts/harden-org.sh
+fi
 
-echo "Done. Org repos, teams, access, and branch protection are configured."
-echo "Next: add people to the repo-scoped team, never to org-wide write."
+if [[ "$DRY_RUN" == "1" ]]; then
+  echo "Dry run complete. No repositories, teams, branches, or org settings were changed."
+else
+  echo "Done. Org repos, teams, access, and branch protection are configured."
+  echo "Next: add people to the repo-scoped team, never to org-wide write."
+  echo "Run HARDEN=1 ./scripts/publish-org.sh to also apply organization hardening."
+  echo "For existing repos with local changes, use ./scripts/sync-remotes.sh --apply instead."
+fi

@@ -1,9 +1,11 @@
 # X launch thread — draft
 
-Post as a thread. Attach the 90-second recording to post 1 or 2 if available.
+Post as a thread only after the 90-second recording exists and the links below return 200. Attach the recording to post 1 or 2.
+
+The demo is local, the classifier signal is synthetic, and the ledger is not externally anchored yet. Say that plainly.
 
 **1/**
-YouTube can erase a 2M-subscriber channel in 5 minutes.
+A single automated decision can erase a 2M-subscriber channel.
 
 The appeal? A bot says a human reviewed it.
 
@@ -12,13 +14,13 @@ We're building the open alternative — starting with the part that matters: due
 Demo + RFC below. 🧵
 
 **2/**
-We shipped a working walking skeleton:
+We shipped a working local appeal demo:
 
 • an original video plays
-• an automated false positive is issued
+• a synthetic automated signal flags it
 • the creator files an appeal
-• a human reverses it
-• every step lands in a hash-chained ledger
+• an independent reviewer reverses it
+• every step lands in a hash-chained, append-only ledger that can be verified and exported
 
 Run it locally:
 github.com/keel-foundation/keel-dev
@@ -68,7 +70,7 @@ RFC-0001 is open for 14 days:
 github.com/keel-foundation/keel-spec/discussions/1
 
 Good first issues:
-github.com/orgs/keel-foundation/issues?q=is%3Aissue+is%3Aopen+label%3Agood-first-issue
+github.com/search?q=org%3Akeel-foundation+label%3Agood-first-issue+state%3Aopen&type=issues
 
 **8/**
 If you've lost a channel to a false positive, or you want to build the lifeboat, comment or DM.

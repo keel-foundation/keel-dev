@@ -6,17 +6,17 @@ Organization: `keel-foundation`
 
 | Repo | Visibility | Purpose | License | Maintainer team | Contributor team |
 |---|---|---|---|---|---|
-| `keel-spec` | Public | Protocol, RFCs, schemas, policy language | CC-BY-4.0 | `spec-maintainers` | `spec-contributors` |
-| `keel-core` | Public | API, identity, channels, videos, subscriptions | AGPL-3.0 | `core-maintainers` | `core-contributors` |
-| `keel-pipeline` | Public | Ingest, transcode, package, thumbnails | AGPL-3.0 | `pipeline-maintainers` | `pipeline-contributors` |
-| `keel-web` | Public | Viewer, creator studio, moderation console | AGPL-3.0 | `web-maintainers` | `web-contributors` |
-| `keel-moderation` | Public | Signals, cases, appeals, audit ledger, content protection | AGPL-3.0 | `moderation-maintainers` | `moderation-contributors` |
-| `keel-dev` | Public | Workspace, local stack, onboarding, org automation | AGPL-3.0 | `dev-maintainers` | `dev-contributors` |
-| `keel-docs` | Public | Public creator and developer documentation | CC-BY-4.0 | `docs-maintainers` | `docs-contributors` |
-| `.github` | Public | Org profile, community health, reusable CI | CC-BY-4.0 | `dev-maintainers` | `dev-contributors` |
-| `keel-governance` | Private | Constitution, whitepaper, board, finance, legal | Private until publication | `governance-maintainers` | `governance-contributors` |
-| `keel-infra` | Private | Production infrastructure, environments, runbooks | Private | `infra-maintainers` | `infra-contributors` |
-| `keel-security` | Private | Threat model, incidents, audits, disclosure | Private | `security-maintainers` | `security-contributors` |
+| `keel-spec` | Public | Protocol, RFCs, schemas, policy language | [CC-BY-4.0](https://github.com/keel-foundation/keel-spec/blob/main/LICENSE) | `spec-maintainers` | `spec-contributors` |
+| `keel-core` | Public | API, identity, channels, videos, subscriptions | [AGPL-3.0](https://github.com/keel-foundation/keel-core/blob/main/LICENSE) | `core-maintainers` | `core-contributors` |
+| `keel-pipeline` | Public | Ingest, transcode, package, thumbnails | [AGPL-3.0](https://github.com/keel-foundation/keel-pipeline/blob/main/LICENSE) | `pipeline-maintainers` | `pipeline-contributors` |
+| `keel-web` | Public | Viewer, creator studio, moderation console | [AGPL-3.0](https://github.com/keel-foundation/keel-web/blob/main/LICENSE) | `web-maintainers` | `web-contributors` |
+| `keel-moderation` | Public | Signals, cases, appeals, audit ledger, content protection | [AGPL-3.0](https://github.com/keel-foundation/keel-moderation/blob/main/LICENSE) | `moderation-maintainers` | `moderation-contributors` |
+| `keel-dev` | Public | Workspace, local stack, onboarding, org automation | [AGPL-3.0](https://github.com/keel-foundation/keel-dev/blob/main/LICENSE) | `dev-maintainers` | `dev-contributors` |
+| `keel-docs` | Public | Public creator and developer documentation | [CC-BY-4.0](https://github.com/keel-foundation/keel-docs/blob/main/LICENSE) | `docs-maintainers` | `docs-contributors` |
+| `.github` | Public | Org profile, community health, reusable CI | [CC-BY-4.0](https://github.com/keel-foundation/.github/blob/main/LICENSE) | `dev-maintainers` | `dev-contributors` |
+| `keel-governance` | Private | Constitution, whitepaper, board, finance, legal | CC-BY-4.0 on publication | `governance-maintainers` | `governance-contributors` |
+| `keel-infra` | Private | Production infrastructure, environments, runbooks | Private (all rights reserved) | `infra-maintainers` | `infra-contributors` |
+| `keel-security` | Private | Threat model, incidents, audits, disclosure | Private (all rights reserved) | `security-maintainers` | `security-contributors` |
 
 ## Team roles
 

@@ -4,14 +4,17 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+from datetime import date, timedelta
 from pathlib import Path
 
-ORG = "keel-foundation"
+ORG = os.environ.get("ORG", "keel-foundation")
 REPO = "keel-spec"
 TITLE = "RFC-0001: Creator-owned video protocol, PeerTube-compatible, moderation-first"
 RFC_PATH = Path(__file__).resolve().parent.parent / "keel-spec" / "rfcs" / "0001-creator-owned-video-protocol.md"
+REVIEWER = os.environ.get("RFC_REVIEWER", "@olubunmitosin (Founder)")
 
 
 def run(args: list[str], stdin: str | None = None) -> str:
@@ -36,15 +39,23 @@ def graphql(query: str, variables: dict) -> dict:
 
 
 def main() -> int:
+    if not RFC_PATH.exists():
+        print(f"RFC not found: {RFC_PATH}", file=sys.stderr)
+        return 1
+
+    review_end = date.today() + timedelta(days=14)
+    if "--dry-run" in sys.argv[1:]:
+        print(f"would open discussion: {TITLE}")
+        print(f"RFC: {RFC_PATH}")
+        print(f"review window closes: {review_end:%d %B %Y}")
+        print(f"reviewers: {REVIEWER} and @keel-foundation/spec-maintainers")
+        return 0
+
     try:
         run(["auth", "status"])
     except RuntimeError as exc:
         print(exc, file=sys.stderr)
         print("Run: gh auth login", file=sys.stderr)
-        return 1
-
-    if not RFC_PATH.exists():
-        print(f"RFC not found: {RFC_PATH}", file=sys.stderr)
         return 1
 
     repo = json.loads(run(["api", f"repos/{ORG}/{REPO}"]))
@@ -96,8 +107,8 @@ def main() -> int:
     body += (
         "\n\n---\n\n"
         "**Status:** Draft for review\n\n"
-        "**Review window:** 14 days, closing **14 November 2026**.\n\n"
-        "**Reviewers:** @olubunmitosin (Founder) and "
+        f"**Review window:** 14 days, closing **{review_end:%d %B %Y}**.\n\n"
+        f"**Reviewers:** {REVIEWER} and "
         "@keel-foundation/spec-maintainers.\n\n"
         "**How to comment:** Reply in this discussion. Substantive objections "
         "should name a concrete alternative and the tradeoff.\n"

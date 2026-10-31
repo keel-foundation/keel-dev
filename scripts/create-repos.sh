@@ -35,7 +35,17 @@ for entry in "${REPOS[@]}"; do
     echo "→ creating: $ORG/$name ($visibility)"
     gh repo create "$ORG/$name" "--$visibility" --description "$desc" --disable-wiki
   fi
+
+  current="$(gh repo view "$ORG/$name" --json visibility --jq '.visibility' 2>/dev/null || true)"
+  if [[ -n "$current" && "${current,,}" != "$visibility" ]]; then
+    echo "→ correcting visibility: $ORG/$name ($current -> $visibility)"
+    gh repo edit "$ORG/$name" \
+      --visibility "$visibility" \
+      --accept-visibility-change-consequences >/dev/null
+  fi
+
   gh repo edit "$ORG/$name" \
     --add-topic tubekeel,peertube,creator-economy,video \
+    --delete-branch-on-merge \
     --description "$desc" >/dev/null || true
 done

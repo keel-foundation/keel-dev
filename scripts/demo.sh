@@ -9,6 +9,7 @@ if [[ ! -d keel-web || ! -d keel-moderation ]]; then
 fi
 
 mkdir -p .demo
+rm -f .demo/ledger.jsonl
 PIDS=()
 cleanup() {
   for pid in "${PIDS[@]:-}"; do
@@ -38,11 +39,15 @@ MODERATION_PORT="$(pick_port 8082)"
 WEB_PORT="$(pick_port 3000)"
 export CORE_PORT PIPELINE_PORT MODERATION_PORT WEB_PORT
 
-export TUBEKEEL_CORE_ADDR=":$CORE_PORT"
-export TUBEKEEL_PIPELINE_ADDR=":$PIPELINE_PORT"
+export TUBEKEEL_CORE_ADDR="127.0.0.1:$CORE_PORT"
+export TUBEKEEL_PIPELINE_ADDR="127.0.0.1:$PIPELINE_PORT"
 export TUBEKEEL_PIPELINE_PUBLIC_URL="http://localhost:$PIPELINE_PORT"
+export TUBEKEEL_CORS_ORIGINS="http://localhost:$WEB_PORT,http://127.0.0.1:$WEB_PORT"
+export TUBEKEEL_LEDGER_PATH="$PWD/.demo/ledger.jsonl"
+export TUBEKEEL_RATE_LIMIT="${TUBEKEEL_RATE_LIMIT:-30}"
 export NEXT_PUBLIC_CORE_URL="http://localhost:$CORE_PORT"
 export NEXT_PUBLIC_MODERATION_URL="http://localhost:$MODERATION_PORT"
+export NEXT_PUBLIC_DEMO_TOKEN="${TUBEKEEL_DEMO_TOKEN:-}"
 
 if [[ ! -x keel-moderation/.venv/bin/uvicorn ]]; then
   echo "→ creating moderation venv"
@@ -72,7 +77,7 @@ PIDS+=($!)
 
 echo "→ starting web"
 rm -rf keel-web/.next
-(cd keel-web && PORT="$WEB_PORT" npm run dev) > .demo/web.log 2>&1 &
+(cd keel-web && PORT="$WEB_PORT" npm run dev -- -H 127.0.0.1) > .demo/web.log 2>&1 &
 PIDS+=($!)
 
 wait_for() {
@@ -90,8 +95,12 @@ wait_for() {
 
 wait_for moderation "http://localhost:$MODERATION_PORT/health"
 if command -v go >/dev/null 2>&1; then
-  wait_for core "http://localhost:$CORE_PORT/health"
-  wait_for pipeline "http://localhost:$PIPELINE_PORT/health"
+  if ! wait_for core "http://localhost:$CORE_PORT/health"; then
+    echo "⚠ core did not become ready; the UI will use the bundled sample clip." >&2
+  fi
+  if ! wait_for pipeline "http://localhost:$PIPELINE_PORT/health"; then
+    echo "⚠ pipeline did not become ready; the UI will use the bundled sample clip." >&2
+  fi
 fi
 wait_for web "http://localhost:$WEB_PORT/demo"
 

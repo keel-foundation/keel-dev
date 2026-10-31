@@ -27,6 +27,16 @@ for repo in "${PUBLIC_REPOS[@]}"; do
   clone_repo "$repo"
 done
 
+if [[ -d dot-github/.git ]]; then
+  echo "→ dot-github already present"
+  git -C dot-github fetch --quiet || true
+else
+  echo "→ cloning dot-github"
+  if ! git clone "https://github.com/$ORG/.github.git" dot-github; then
+    echo "  skipped dot-github (no access or repo not created yet)"
+  fi
+fi
+
 if $clone_all; then
   for repo in "${PRIVATE_REPOS[@]}"; do
     clone_repo "$repo"

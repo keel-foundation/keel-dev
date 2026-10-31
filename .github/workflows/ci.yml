@@ -4,8 +4,26 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   compose:
     uses: keel-foundation/.github/.github/workflows/compose-ci.yml@main
     with:
       compose_file: devstack/docker-compose.yml
+  workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check shell syntax
+        run: for file in scripts/*.sh; do bash -n "$file"; done
+      - name: Check Python syntax
+        run: python3 -m compileall -q scripts
+      - name: Check local markdown links
+        run: python3 scripts/check-doc-links.py
+  docs:
+    uses: keel-foundation/.github/.github/workflows/docs-ci.yml@main
