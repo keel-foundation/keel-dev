@@ -1,0 +1,59 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Nested repositories in this multi-repo workspace
+/keel-spec/
+/keel-core/
+/keel-pipeline/
+/keel-web/
+/keel-moderation/
+/keel-docs/
+/keel-governance/
+/keel-infra/
+/keel-security/
+/dot-github/
+
+# Local
+go.work
+go.work.sum
+tmp/
+data/
+uploads/
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+build/
+.turbo/
+.cache/
+coverage/
+*.tsbuildinfo
+
+# Go
+bin/
+*.test
+*.out
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Infrastructure
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+kubeconfig

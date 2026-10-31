@@ -1,0 +1,11 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compose:
+    uses: keel-foundation/.github/.github/workflows/compose-ci.yml@main
+    with:
+      compose_file: devstack/docker-compose.yml

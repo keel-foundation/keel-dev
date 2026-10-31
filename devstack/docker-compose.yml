@@ -1,0 +1,59 @@
+name: tubekeel
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tubekeel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tubekeel-dev}
+      POSTGRES_DB: ${POSTGRES_DB:-tubekeel}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tubekeel"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-tubekeel}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-tubekeel-dev-secret}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD; do sleep 1; done;
+      mc mb --ignore-existing local/tubekeel;
+      mc mb --ignore-existing local/tubekeel-public;
+      mc anonymous set download local/tubekeel-public;
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-tubekeel}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-tubekeel-dev-secret}
+
+  nats:
+    image: nats:2.10-alpine
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - nats-data:/data
+
+volumes:
+  postgres-data:
+  minio-data:
+  nats-data:
