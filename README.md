@@ -52,7 +52,7 @@ The bootstrap script clones the other repos next to this one inside the workspac
 make demo
 ```
 
-This starts the moderation service and the web app. If Go is installed, it also starts `core` and `pipeline`; otherwise the UI falls back to the bundled sample clip. Open `http://localhost:3000/demo`.
+This starts the moderation service and the web app. If Go is installed, it also starts `core` and `pipeline`; otherwise the UI falls back to the bundled sample clip. Open the URL printed by the script (usually `http://localhost:3000/demo`).
 
 The demo walks the creator-protection thesis:
 
