@@ -45,7 +45,16 @@ A contributor to `keel-web` must not receive access to `keel-core`, `keel-modera
 
 Main must be protected on every repo. Direct pushes to main are disabled for everyone except a break-glass owner action, which must be logged.
 
-Branch protection on private repositories requires a GitHub plan that supports it. If the API rejects protection for a private repo, enable the equivalent rules manually in repository settings and record the exception.
+Branch protection on private repositories requires a GitHub plan that supports it. GitHub Free does not support native branch protection on private repos; the protection script detects this and skips those repos rather than failing.
+
+Until the organization is on GitHub Team or Enterprise, enforce the same rules manually for `keel-governance`, `keel-infra`, and `keel-security`:
+
+1. Keep write access to maintainers only.
+2. Require a pull request and two approvals in the repository's `CONTRIBUTING` guidance.
+3. Use `CODEOWNERS` as the review contract.
+4. Require environment approval for production deploys.
+5. Log any direct push to `main` in the private governance access log.
+6. Upgrade the plan when the project can afford it, then rerun `./scripts/protect-branches.sh`.
 
 ## CODEOWNERS
 

@@ -46,6 +46,32 @@ make web-dev
 
 The bootstrap script clones the other repos next to this one inside the workspace. They are ignored by this repo's `.gitignore`; each has its own git history and GitHub remote.
 
+## Working demo
+
+```sh
+make demo
+```
+
+This starts the moderation service and the web app. If Go is installed, it also starts `core` and `pipeline`; otherwise the UI falls back to the bundled sample clip. Open `http://localhost:3000/demo`.
+
+The demo walks the creator-protection thesis:
+
+1. **Issue false positive** — an automated classifier flags an original documentary as mass-produced spam.
+2. **File appeal** — the creator submits grounds and evidence.
+3. **Reverse on human review** — a reviewer reverses the action with written reasoning.
+4. **Inspect the ledger** — every step is a hash-chained audit record.
+
+Expected states: `active` → appeal `pending` → appeal `decided` / action `reversed`. The 90-second recording shot list is in [docs/demo-script.md](docs/demo-script.md).
+
+## RFC and alpha backlog
+
+```sh
+make rfc-discussion   # open RFC-0001 in keel-spec Discussions
+make seed-alpha       # create alpha-0.1 milestones, labels, and issues
+```
+
+Both commands are idempotent: existing discussions, milestones, labels, and issues are skipped.
+
 ## Creating the GitHub org repos
 
 Remote creation requires an authenticated GitHub CLI with org admin rights:
@@ -57,6 +83,8 @@ gh auth login
 ```
 
 `publish-org.sh` creates the repos with the correct visibility, initializes remotes, pushes the scaffold, creates the teams, grants repo-scoped access, and applies branch protection. It is idempotent: existing repos and teams are skipped, and repo topics/descriptions are refreshed.
+
+On GitHub Free, native branch protection is unavailable for private repos. The script protects public repos and skips `keel-governance`, `keel-infra`, and `keel-security` with a warning. See [ACCESS.md](ACCESS.md) for the manual fallback.
 
 ## Public/private boundary
 

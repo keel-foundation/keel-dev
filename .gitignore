@@ -25,6 +25,7 @@ go.work.sum
 tmp/
 data/
 uploads/
+.demo/
 
 # Node
 node_modules/
@@ -57,3 +58,6 @@ __pycache__/
 *.tfstate.*
 *.tfvars
 kubeconfig
+
+# Local demo logs
+.demo/

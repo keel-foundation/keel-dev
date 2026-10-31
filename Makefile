@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: help bootstrap infra-up infra-down infra-logs core-dev pipeline-dev moderation-dev web-dev test fmt publish
+.PHONY: help bootstrap infra-up infra-down infra-logs core-dev pipeline-dev moderation-dev web-dev demo seed-alpha rfc-discussion test fmt publish
 
 help:
 	@echo "TubeKeel workspace"
@@ -13,6 +13,9 @@ help:
 	@echo "  make pipeline-dev   Run the transcode worker"
 	@echo "  make moderation-dev Run the moderation service"
 	@echo "  make web-dev        Run the web client"
+	@echo "  make demo           Run the full walking-skeleton demo"
+	@echo "  make seed-alpha     Create alpha-0.1 milestones, labels, and issues"
+	@echo "  make rfc-discussion Open RFC-0001 in keel-spec Discussions"
 	@echo "  make test           Run available tests"
 	@echo "  make fmt            Format sources in the sibling repos"
 	@echo "  make publish        Create/push GitHub org repos (requires gh auth)"
@@ -40,6 +43,15 @@ moderation-dev:
 
 web-dev:
 	cd keel-web && npm run dev
+
+demo:
+	./scripts/demo.sh
+
+seed-alpha:
+	python3 scripts/seed-alpha.py
+
+rfc-discussion:
+	python3 scripts/open-rfc-discussion.py
 
 test:
 	@if [ -d keel-core ]; then (cd keel-core && go test ./...); fi
