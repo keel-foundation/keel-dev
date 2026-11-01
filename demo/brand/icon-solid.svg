@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img">
+  <title>KeelTube</title>
+  <defs>
+    <style>
+      .wordmark { font-family: 'Sora', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif; }
+    </style>
+    <mask id="even-keel-cut">
+      <rect width="256" height="256" fill="black"/>
+      <rect x="8" y="8" width="240" height="240" rx="56" fill="white"/>
+      <rect x="78" y="54" width="30" height="148" rx="15" fill="black"/>
+      <path d="M108 84 L108 152 L178 118 Z" fill="black"/>
+      <path d="M108 126 L178 184" fill="none" stroke="black" stroke-width="30" stroke-linecap="round"/>
+      <rect x="54" y="210" width="148" height="8" rx="4" fill="black"/>
+    </mask>
+    <mask id="even-keel-app-cut">
+      <rect width="256" height="256" fill="black"/>
+      <rect width="256" height="256" fill="white"/>
+      <rect x="78" y="54" width="30" height="148" rx="15" fill="black"/>
+      <path d="M108 84 L108 152 L178 118 Z" fill="black"/>
+      <path d="M108 126 L178 184" fill="none" stroke="black" stroke-width="30" stroke-linecap="round"/>
+      <rect x="54" y="210" width="148" height="8" rx="4" fill="black"/>
+    </mask>
+  </defs>
+  <g transform="scale(1.000000)"><rect x="8" y="8" width="240" height="240" rx="56" fill="#9C599C"/><g fill="#FFFFFF"><rect x="78" y="54" width="30" height="148" rx="15"/><path d="M108 84 L108 152 L178 118 Z"/><rect x="54" y="210" width="148" height="8" rx="4"/></g><path d="M108 126 L178 184" fill="none" stroke="#FFFFFF" stroke-width="30" stroke-linecap="round"/></g>
+</svg>

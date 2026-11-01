@@ -1,6 +1,7 @@
 # Public demo
 
-A minimal, standalone version of the KeelTube creator-appeal flow.
+The public KeelTube creator-appeal demo. This is the canonical, standalone entry point for
+anyone who wants to see the appeal flow without running the real ecosystem.
 
 ## Run
 
@@ -11,6 +12,9 @@ make demo
 ```
 
 Open `http://localhost:3000`. Use `make demo-open` to open the browser automatically.
+
+The demo uses the approved KeelTube branding: Sora, Inter, IBM Plex Mono, the primary purple
+palette, and a dark/light theme toggle. The theme is stored in `localStorage`.
 
 ## Mock mode
 
@@ -42,6 +46,7 @@ See [docs/staging.md](../docs/staging.md). The local server proxies stage reques
 | `config.js` | Static mock-mode configuration |
 | `sample.mp4` | Eight-second demo clip |
 | `sample.vtt` | Captions |
+| `brand/` | Approved KeelTube logo, icon, and favicon assets |
 
 ## What is not here
 

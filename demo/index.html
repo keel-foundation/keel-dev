@@ -1,37 +1,106 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="A minimal, mocked KeelTube creator-appeal demo." />
-    <title>KeelTube · demo</title>
+    <meta
+      name="description"
+      content="The KeelTube public creator-appeal demo: a false positive, a real appeal, human review, and a hash-chained ledger."
+    />
+    <title>KeelTube · public appeal demo</title>
+    <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Sora:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/styles.css" />
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("keeltube-demo-theme");
+          document.documentElement.dataset.theme = theme === "light" ? "light" : "dark";
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
   </head>
   <body>
-    <main class="page" id="app" aria-busy="false">
-      <header class="hero compact">
-        <p class="eyebrow">
-          KeelTube · public demo
+    <a class="skip-link" href="#main">Skip to the demo</a>
+
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="brand" href="/" aria-label="KeelTube public demo">
+          <img class="brand-logo brand-logo-dark" src="/brand/logo-horizontal-dark.svg" alt="KeelTube" />
+          <img class="brand-logo brand-logo-light" src="/brand/logo-horizontal-light.svg" alt="KeelTube" />
+        </a>
+
+        <div class="header-meta">
+          <span class="eyebrow">Public demo</span>
           <span id="mode-badge" class="badge clear">mock mode</span>
-        </p>
-        <h1>A false positive. A real appeal.</h1>
+        </div>
+
+        <div class="header-actions">
+          <button
+            id="theme-toggle"
+            class="button ghost small theme-toggle"
+            type="button"
+            aria-label="Switch to light theme"
+            aria-pressed="false"
+          >
+            <span class="theme-toggle-icon" aria-hidden="true"></span>
+            <span id="theme-label">Light</span>
+          </button>
+          <a class="button ghost small" href="https://github.com/keel-foundation/keel-dev">
+            GitHub
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="page" id="main" aria-busy="false">
+      <header class="hero compact">
+        <p class="eyebrow">Creator appeal demo · no backend required</p>
+        <h1>A false positive.<br />A real appeal.</h1>
         <p class="lede">
           An original documentary is flagged as mass-produced spam. Watch the
           enforcement action, file the appeal, and reverse it on human review.
           Every step is written to an append-only, hash-chained ledger.
         </p>
         <div class="actions">
-          <a class="button secondary" href="https://github.com/keel-foundation/keel-dev#readme">
+          <a class="button" href="#demo">Start the flow</a>
+          <a
+            class="button secondary"
+            href="https://github.com/keel-foundation/keel-dev#readme"
+          >
             About this demo
           </a>
-          <button id="reset-button" class="button" type="button">Reset demo state</button>
+          <button id="reset-button" class="button secondary" type="button">
+            Reset demo state
+          </button>
         </div>
+        <dl class="hero-facts">
+          <div>
+            <dt>Mode</dt>
+            <dd id="hero-mode">Mock · browser only</dd>
+          </div>
+          <div>
+            <dt>Ledger</dt>
+            <dd>SHA-256 chain</dd>
+          </div>
+          <div>
+            <dt>Review</dt>
+            <dd>Independent reviewer</dd>
+          </div>
+        </dl>
       </header>
 
       <p id="error" class="error" role="alert" hidden></p>
 
-      <section class="demo-grid">
-        <article class="panel">
+      <section id="demo" class="demo-grid" aria-label="Appeal flow">
+        <article class="panel video-panel">
           <div class="status-row">
             <span id="status-badge" class="badge clear">published</span>
             <span id="policy-label" class="muted">no enforcement action</span>
@@ -48,30 +117,47 @@
             <source src="/sample.mp4" type="video/mp4" />
             <track kind="captions" src="/sample.vtt" srclang="en" label="English" default />
           </video>
-          <p class="muted">Creator: Mara Vale · 8 second demo clip · original documentary</p>
+          <p class="muted">
+            Creator: Mara Vale · 8 second demo clip · original documentary
+          </p>
+
+          <ol class="steps" aria-label="Demo steps">
+            <li>Issue the false positive</li>
+            <li>File the creator appeal</li>
+            <li>Reverse on human review</li>
+          </ol>
 
           <div class="actions">
             <button id="issue-button" class="button" type="button">
-              1. Issue false positive
+              <span class="step-number">1</span>
+              Issue false positive
             </button>
             <button id="appeal-button" class="button secondary" type="button">
-              2. File appeal
+              <span class="step-number">2</span>
+              File appeal
             </button>
             <button id="reverse-button" class="button secondary" type="button">
-              3. Reverse on human review
+              <span class="step-number">3</span>
+              Reverse on human review
             </button>
           </div>
         </article>
 
         <aside class="panel">
-          <h2>Decision record</h2>
+          <div class="panel-heading">
+            <p class="eyebrow">Trust surface</p>
+            <h2>Decision record</h2>
+          </div>
           <div id="decision"></div>
         </aside>
       </section>
 
       <section class="panel ledger-panel">
         <div class="status-row">
-          <h2>Audit ledger</h2>
+          <div>
+            <p class="eyebrow">Audit ledger</p>
+            <h2>Every step is a record</h2>
+          </div>
           <span id="ledger-count" class="muted">0 records</span>
         </div>
         <div class="actions ledger-actions">
@@ -87,20 +173,28 @@
         <ol id="ledger" class="ledger"></ol>
       </section>
 
-      <footer class="footer">
-        <p id="footer-note">
+      <footer class="site-footer">
+        <div class="footer-brand">
+          <img src="/brand/icon-solid.svg" alt="" width="36" height="36" />
+          <div>
+            <strong>KeelTube</strong>
+            <p>An even keel for creators.</p>
+          </div>
+        </div>
+        <p id="footer-note" class="muted">
           Mock mode: all state is simulated in your browser. No backend is required.
         </p>
         <p class="muted" id="openapi-line" hidden>
           API contract: <a id="openapi-link" href="#">OpenAPI</a>
         </p>
-        <p class="muted">
-          Contribute without cloning the ecosystem:
+        <p class="muted footer-links">
           <a href="https://github.com/keel-foundation/keel-dev/blob/main/docs/contribute/README.md">
-            contribution guides
+            Contribution guides
           </a>
-          · <a href="https://github.com/keel-foundation/keel-dev/blob/main/docs/staging.md">stage mode</a>
-          · <a href="https://github.com/keel-foundation/keel-spec">schemas</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/keel-foundation/keel-dev/blob/main/docs/staging.md">Stage mode</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/keel-foundation/keel-spec">Schemas</a>
         </p>
       </footer>
     </main>

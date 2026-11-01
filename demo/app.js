@@ -14,7 +14,7 @@ const FALLBACK_VIDEO = {
 const FALLBACK_SRC = "/sample.mp4";
 
 const elements = {
-  app: document.getElementById("app"),
+  app: document.getElementById("main"),
   modeBadge: document.getElementById("mode-badge"),
   error: document.getElementById("error"),
   statusBadge: document.getElementById("status-badge"),
@@ -34,12 +34,37 @@ const elements = {
   exportButton: document.getElementById("export-button"),
   footerNote: document.getElementById("footer-note"),
   openapiLine: document.getElementById("openapi-line"),
-  openapiLink: document.getElementById("openapi-link")
+  openapiLink: document.getElementById("openapi-link"),
+  heroMode: document.getElementById("hero-mode"),
+  themeToggle: document.getElementById("theme-toggle"),
+  themeLabel: document.getElementById("theme-label")
 };
 
 let busy = false;
 let lastState = null;
 let lastVideo = FALLBACK_VIDEO;
+
+function applyTheme(theme, persist = true) {
+  const next = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  if (persist) {
+    try {
+      localStorage.setItem("keeltube-demo-theme", next);
+    } catch {
+      // localStorage can be unavailable in private or restricted contexts.
+    }
+  }
+  if (elements.themeLabel) {
+    elements.themeLabel.textContent = next === "dark" ? "Light" : "Dark";
+  }
+  if (elements.themeToggle) {
+    elements.themeToggle.setAttribute(
+      "aria-label",
+      next === "dark" ? "Switch to light theme" : "Switch to dark theme"
+    );
+    elements.themeToggle.setAttribute("aria-pressed", String(next === "light"));
+  }
+}
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => {
@@ -127,11 +152,13 @@ function renderMode() {
     elements.modeBadge.className = "badge stage";
     elements.footerNote.textContent =
       "Stage mode: the local demo server proxies requests to the configured stage services. The token stays server-side.";
+    if (elements.heroMode) elements.heroMode.textContent = "Stage · proxied";
   } else {
     elements.modeBadge.textContent = "mock mode";
     elements.modeBadge.className = "badge clear";
     elements.footerNote.textContent =
       "Mock mode: all state is simulated in your browser. No backend is required.";
+    if (elements.heroMode) elements.heroMode.textContent = "Mock · browser only";
   }
   if (config.openapiUrl) {
     elements.openapiLine.hidden = false;
@@ -682,6 +709,10 @@ elements.video.addEventListener("error", () => {
   }
 });
 
+applyTheme(document.documentElement.dataset.theme, false);
+elements.themeToggle?.addEventListener("click", () => {
+  applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
+});
 renderMode();
 if (MODE === "remote" && config.configured === false) {
   setError(

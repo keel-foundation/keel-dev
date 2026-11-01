@@ -16,6 +16,9 @@ REQUIRED = [
     "app.js",
     "sample.mp4",
     "sample.vtt",
+    "brand/logo-horizontal-dark.svg",
+    "brand/logo-horizontal-light.svg",
+    "brand/favicon.svg",
 ]
 SKIP_SCHEMES = ("http://", "https://", "mailto:", "tel:", "data:", "javascript:")
 LINK = re.compile(r'(?:src|href)="([^"]+)"')
