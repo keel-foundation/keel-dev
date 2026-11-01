@@ -35,11 +35,12 @@ python3 -m venv .venv
 
 # Node
 npm ci
+npm run lint
 npm test
 npm run typecheck
 npm run build
 npm run format:check
-npm run test:e2e       # watch/player changes, with the backend running
+npm run test:e2e       # starts the Vite dev server; no backend required
 ```
 
 ## 4. Make a focused branch
