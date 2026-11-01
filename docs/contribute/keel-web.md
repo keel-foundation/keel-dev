@@ -3,7 +3,7 @@
 Repository: [keel-foundation/keel-web](https://github.com/keel-foundation/keel-web)
 
 This repository is the full web client: home, Explore, watch page, channels, search, library, creator
-studio, Cases & appeals, and the published-video editor. The UI is implemented against a local data adapter; the
+studio, Cases & appeals, the guided upload wizard, and the versioned video editor. The UI is implemented against a local data adapter; the
 core and moderation API adapters are the next integration step.
 
 **Creator and staff moderation are separate.** Creators inspect cases about their own videos, read
