@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A minimal, mocked TubeKeel creator-appeal demo." />
+    <title>TubeKeel · demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page" id="app" aria-busy="false">
+      <header class="hero compact">
+        <p class="eyebrow">
+          TubeKeel · public demo
+          <span id="mode-badge" class="badge clear">mock mode</span>
+        </p>
+        <h1>A false positive. A real appeal.</h1>
+        <p class="lede">
+          An original documentary is flagged as mass-produced spam. Watch the
+          enforcement action, file the appeal, and reverse it on human review.
+          Every step is written to an append-only, hash-chained ledger.
+        </p>
+        <div class="actions">
+          <a class="button secondary" href="https://github.com/keel-foundation/keel-dev#readme">
+            About this demo
+          </a>
+          <button id="reset-button" class="button" type="button">Reset demo state</button>
+        </div>
+      </header>
+
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <section class="demo-grid">
+        <article class="panel">
+          <div class="status-row">
+            <span id="status-badge" class="badge clear">published</span>
+            <span id="policy-label" class="muted">no enforcement action</span>
+          </div>
+          <h2 id="video-title">The Last Lighthouse</h2>
+          <video
+            id="video"
+            class="video"
+            controls
+            playsinline
+            preload="metadata"
+            poster=""
+          >
+            <source src="/sample.mp4" type="video/mp4" />
+            <track kind="captions" src="/sample.vtt" srclang="en" label="English" default />
+          </video>
+          <p class="muted">Creator: Mara Vale · 8 second demo clip · original documentary</p>
+
+          <div class="actions">
+            <button id="issue-button" class="button" type="button">
+              1. Issue false positive
+            </button>
+            <button id="appeal-button" class="button secondary" type="button">
+              2. File appeal
+            </button>
+            <button id="reverse-button" class="button secondary" type="button">
+              3. Reverse on human review
+            </button>
+          </div>
+        </article>
+
+        <aside class="panel">
+          <h2>Decision record</h2>
+          <div id="decision"></div>
+        </aside>
+      </section>
+
+      <section class="panel ledger-panel">
+        <div class="status-row">
+          <h2>Audit ledger</h2>
+          <span id="ledger-count" class="muted">0 records</span>
+        </div>
+        <div class="actions ledger-actions">
+          <button id="verify-button" class="button secondary" type="button">
+            Verify ledger
+          </button>
+          <button id="export-button" class="button secondary" type="button">
+            Export JSONL
+          </button>
+          <span id="verify-badge" class="badge clear" aria-live="polite">chain valid</span>
+        </div>
+        <p id="verify-detail" class="error" hidden></p>
+        <ol id="ledger" class="ledger"></ol>
+      </section>
+
+      <footer class="footer">
+        <p id="footer-note">
+          Mock mode: all state is simulated in your browser. No backend is required.
+        </p>
+        <p class="muted" id="openapi-line" hidden>
+          API contract: <a id="openapi-link" href="#">OpenAPI</a>
+        </p>
+        <p class="muted">
+          Contribute without cloning the ecosystem:
+          <a href="https://github.com/keel-foundation/keel-dev/blob/main/docs/contribute/README.md">
+            contribution guides
+          </a>
+          · <a href="https://github.com/keel-foundation/keel-dev/blob/main/docs/staging.md">stage mode</a>
+          · <a href="https://github.com/keel-foundation/keel-spec">schemas</a>
+        </p>
+      </footer>
+    </main>
+
+    <script src="/config.js"></script>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

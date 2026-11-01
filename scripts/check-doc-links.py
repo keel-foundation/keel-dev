@@ -12,6 +12,10 @@ SCHEMES = ("http://", "https://", "mailto:", "tel:", "data:", "javascript:")
 
 
 def markdown_files(root: Path):
+    if root.is_file():
+        if root.suffix == ".md":
+            yield root
+        return
     for path in root.rglob("*.md"):
         if any(part in SKIP_DIRS for part in path.parts):
             continue
@@ -43,7 +47,10 @@ def check(root: Path) -> int:
 
 def main() -> int:
     roots = [Path(arg) for arg in sys.argv[1:]] or [Path(".")]
-    return max(check(root.resolve()) for root in roots)
+    code = 0
+    for root in roots:
+        code = max(code, check(root.resolve()))
+    return code
 
 
 if __name__ == "__main__":
