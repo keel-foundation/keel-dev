@@ -14,6 +14,8 @@ Clone only the repository you need.
 | [`.github`](https://github.com/keel-foundation/.github) | Organization profile, community health, reusable CI. |
 
 `keel-governance`, `keel-infra`, and `keel-security` are private. Access is granted by maintainers.
+They are separate repositories. Do not copy their contents into a public repository, and run
+`make boundary` before pushing changes from this workspace.
 
 ## Full-stack setup
 

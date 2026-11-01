@@ -11,7 +11,7 @@ git clone https://github.com/keel-foundation/keel-spec.git
 cd keel-spec
 
 python3 -m venv .venv
-.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/pip install -r requirements-dev.lock
 .venv/bin/python scripts/validate_schemas.py
 ```
 

@@ -24,6 +24,10 @@ git commit -s -m "feat: add video manifest endpoint"
 
 Do not add a CLA. Do not commit secrets, credentials, private governance text, or customer data.
 
+This repository is public. `keel-governance`, `keel-infra`, and `keel-security` are private
+repositories. Do not copy their contents here or run `git add -A` from the workspace root
+without running `make boundary` first.
+
 ## Which repository?
 
 | Change | Repository |

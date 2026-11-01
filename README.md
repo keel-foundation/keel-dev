@@ -64,6 +64,21 @@ The short version:
 4. Sign off commits with the DCO.
 5. Open a focused pull request.
 
+## Workspace boundary
+
+`keel-governance`, `keel-infra`, and `keel-security` are private repositories. They are separate
+checkouts. When they are placed inside this working tree, this repository ignores them. Never
+copy, commit, or push their contents into `keel-dev` or any other public repository.
+
+Run the boundary check before pushing:
+
+```sh
+make boundary
+```
+
+`make test` runs the same check. It verifies that private paths are ignored and that no private
+path is tracked here.
+
 ## Demo files
 
 | Path | Purpose |

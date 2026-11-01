@@ -11,7 +11,8 @@ git clone https://github.com/keel-foundation/keel-moderation.git
 cd keel-moderation
 
 python3 -m venv .venv
-.venv/bin/pip install -e '.[dev]'
+.venv/bin/pip install -r requirements-dev.lock
+.venv/bin/pip install -e . --no-deps
 .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8082
 .venv/bin/pytest -q
 .venv/bin/ruff check app tests
