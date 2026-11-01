@@ -24,14 +24,14 @@ You do not need core, the pipeline, the web app, PostgreSQL, NATS, or object sto
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `TUBEKEEL_LEDGER_PATH` | `data/ledger.jsonl` | Append-only ledger file |
-| `TUBEKEEL_STATE_DB` | `data/state.sqlite3` | SQLite workflow state |
-| `TUBEKEEL_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
-| `TUBEKEEL_RATE_LIMIT` | `30` | Mutating requests per IP per minute |
-| `TUBEKEEL_DEMO_TOKEN` | unset | Legacy single-token demo mode |
-| `TUBEKEEL_CREATOR_TOKEN` | unset | Creator role token for role-enforced mode |
-| `TUBEKEEL_MODERATOR_TOKEN` | unset | Moderator role token for role-enforced mode |
-| `TUBEKEEL_APPEALS_TOKEN` | unset | Appeals reviewer token for role-enforced mode |
+| `KEELTUBE_LEDGER_PATH` | `data/ledger.jsonl` | Append-only ledger file |
+| `KEELTUBE_STATE_DB` | `data/state.sqlite3` | SQLite workflow state |
+| `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
+| `KEELTUBE_RATE_LIMIT` | `30` | Mutating requests per IP per minute |
+| `KEELTUBE_DEMO_TOKEN` | unset | Legacy single-token demo mode |
+| `KEELTUBE_CREATOR_TOKEN` | unset | Creator role token for role-enforced mode |
+| `KEELTUBE_MODERATOR_TOKEN` | unset | Moderator role token for role-enforced mode |
+| `KEELTUBE_APPEALS_TOKEN` | unset | Appeals reviewer token for role-enforced mode |
 
 The service supports open local mode, a legacy single-token demo mode, and role-enforced mode
 where the creator, moderator, and appeals tokens are distinct. Reviewer independence is enforced
@@ -44,13 +44,13 @@ append-only JSONL.
 ## Connect the demo to local moderation
 
 ```sh
-TUBEKEEL_MODE=remote \
-TUBEKEEL_API_BASE_URL=https://stage-api.example.org \
-TUBEKEEL_MODERATION_BASE_URL=http://127.0.0.1:8082 \
+KEELTUBE_MODE=remote \
+KEELTUBE_API_BASE_URL=https://stage-api.example.org \
+KEELTUBE_MODERATION_BASE_URL=http://127.0.0.1:8082 \
 make demo
 ```
 
-Use stage core for the video metadata. If you are also changing core, point `TUBEKEEL_API_BASE_URL` at your local core instead.
+Use stage core for the video metadata. If you are also changing core, point `KEELTUBE_API_BASE_URL` at your local core instead.
 
 ## Policy work
 

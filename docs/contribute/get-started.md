@@ -22,7 +22,7 @@ Use the repository's own README. The common commands are:
 ```sh
 # Go
 # keel-core database tests need PostgreSQL and serialized packages:
-TUBEKEEL_TEST_DATABASE_URL='postgres://...' go test -p 1 ./...
+KEELTUBE_TEST_DATABASE_URL='postgres://...' go test -p 1 ./...
 go test ./...          # pipeline
 go vet ./...
 
@@ -63,9 +63,9 @@ Link the issue or discussion, describe what changed, how you tested it, and any 
 The public demo in this repository is mocked. If your module exposes HTTP endpoints, point the demo at your local service:
 
 ```sh
-TUBEKEEL_MODE=remote \
-TUBEKEEL_API_BASE_URL=http://127.0.0.1:8080 \
-TUBEKEEL_MODERATION_BASE_URL=https://stage-moderation.example.org \
+KEELTUBE_MODE=remote \
+KEELTUBE_API_BASE_URL=http://127.0.0.1:8080 \
+KEELTUBE_MODERATION_BASE_URL=https://stage-moderation.example.org \
 make demo
 ```
 

@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: help demo demo-open test check boundary
 
 help:
-	@echo "TubeKeel public demo"
+	@echo "KeelTube public demo"
 	@echo ""
 	@echo "  make demo       Serve the mocked demo at http://localhost:3000"
 	@echo "  make demo-open  Serve and open the browser"

@@ -13,9 +13,9 @@ Clone only the repository you need.
 | [`keel-docs`](https://github.com/keel-foundation/keel-docs) | Public creator and developer documentation. |
 | [`.github`](https://github.com/keel-foundation/.github) | Organization profile, community health, reusable CI. |
 
-`keel-governance`, `keel-infra`, and `keel-security` are private. Access is granted by maintainers.
-They are separate repositories. Do not copy their contents into a public repository, and run
-`make boundary` before pushing changes from this workspace.
+`keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private. Access is
+granted by maintainers. They are separate repositories. Do not copy their contents into a public
+repository, and run `make boundary` before pushing changes from this workspace.
 
 ## Full-stack setup
 

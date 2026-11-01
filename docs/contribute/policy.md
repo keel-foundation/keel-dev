@@ -48,9 +48,9 @@ cd keel-moderation
 Then point the demo at the local service:
 
 ```sh
-TUBEKEEL_MODE=remote \
-TUBEKEEL_API_BASE_URL=https://stage-api.example.org \
-TUBEKEEL_MODERATION_BASE_URL=http://127.0.0.1:8082 \
+KEELTUBE_MODE=remote \
+KEELTUBE_API_BASE_URL=https://stage-api.example.org \
+KEELTUBE_MODERATION_BASE_URL=http://127.0.0.1:8082 \
 make demo
 ```
 

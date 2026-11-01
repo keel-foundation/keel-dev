@@ -1,6 +1,6 @@
 # Public demo
 
-A minimal, standalone version of the TubeKeel creator-appeal flow.
+A minimal, standalone version of the KeelTube creator-appeal flow.
 
 ## Run
 

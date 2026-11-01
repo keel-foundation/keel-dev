@@ -1,4 +1,4 @@
-window.TUBEKEEL_CONFIG = {
+window.KEELTUBE_CONFIG = {
   mode: "mock",
   apiBaseUrl: "/api",
   moderationBaseUrl: "/moderation",

@@ -11,7 +11,7 @@ requires PostgreSQL; you do not need the pipeline, moderation, web app, or NATS 
 git clone https://github.com/keel-foundation/keel-core.git
 cd keel-core
 
-export TUBEKEEL_DATABASE_URL='postgres://tubekeel:tubekeel-dev@127.0.0.1:5432/tubekeel?sslmode=disable'
+export KEELTUBE_DATABASE_URL='postgres://keeltube:keeltube-dev@127.0.0.1:5432/keeltube?sslmode=disable'
 go run ./cmd/seed
 go run ./cmd/api
 ```
@@ -23,13 +23,13 @@ Core listens on `127.0.0.1:8080` by default. The seed is idempotent and creates 
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `TUBEKEEL_CORE_ADDR` | `127.0.0.1:8080` | Listen address |
-| `TUBEKEEL_DATABASE_URL` | `postgres://tubekeel:tubekeel-dev@127.0.0.1:5432/tubekeel?sslmode=disable` | PostgreSQL DSN |
-| `TUBEKEEL_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
-| `TUBEKEEL_DEV_ACTOR_ID` | `usr_demo` | Dev auth principal |
-| `TUBEKEEL_DEV_ACTOR_TOKEN` | unset | Optional dev bearer token |
-| `TUBEKEEL_PIPELINE_PUBLIC_URL` | `http://localhost:8081` | Playback URL used by the seed |
-| `TUBEKEEL_WEB_PUBLIC_URL` | `http://localhost:3000` | Captions URL used by the seed |
+| `KEELTUBE_CORE_ADDR` | `127.0.0.1:8080` | Listen address |
+| `KEELTUBE_DATABASE_URL` | `postgres://keeltube:keeltube-dev@127.0.0.1:5432/keeltube?sslmode=disable` | PostgreSQL DSN |
+| `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
+| `KEELTUBE_DEV_ACTOR_ID` | `usr_demo` | Dev auth principal |
+| `KEELTUBE_DEV_ACTOR_TOKEN` | unset | Optional dev bearer token |
+| `KEELTUBE_PIPELINE_PUBLIC_URL` | `http://localhost:8081` | Playback URL used by the seed |
+| `KEELTUBE_WEB_PUBLIC_URL` | `http://localhost:3000` | Captions URL used by the seed |
 
 ## Endpoints
 
@@ -54,11 +54,11 @@ go test ./internal/api/...
 go test ./internal/db/...
 ```
 
-Database tests require `TUBEKEEL_TEST_DATABASE_URL`. Run packages sequentially because they share
+Database tests require `KEELTUBE_TEST_DATABASE_URL`. Run packages sequentially because they share
 the test tables:
 
 ```sh
-TUBEKEEL_TEST_DATABASE_URL='postgres://tubekeel:tubekeel-dev@127.0.0.1:5432/tubekeel?sslmode=disable' \
+KEELTUBE_TEST_DATABASE_URL='postgres://keeltube:keeltube-dev@127.0.0.1:5432/keeltube?sslmode=disable' \
   go test -p 1 ./...
 ```
 
@@ -69,9 +69,9 @@ If a change crosses packages, run the full command before opening the PR.
 Start local core with the seed, then run the public demo with the stage moderation endpoint:
 
 ```sh
-TUBEKEEL_MODE=remote \
-TUBEKEEL_API_BASE_URL=http://127.0.0.1:8080 \
-TUBEKEEL_MODERATION_BASE_URL=https://stage-moderation.example.org \
+KEELTUBE_MODE=remote \
+KEELTUBE_API_BASE_URL=http://127.0.0.1:8080 \
+KEELTUBE_MODERATION_BASE_URL=https://stage-moderation.example.org \
 make demo
 ```
 
@@ -97,7 +97,7 @@ docker compose -f keel-infra/devstack/apps.compose.yml up -d --build
 
 ## PR checklist
 
-- `go test -p 1 ./...` with `TUBEKEEL_TEST_DATABASE_URL`, `go vet ./...`, and `gofmt -l .` are clean.
+- `go test -p 1 ./...` with `KEELTUBE_TEST_DATABASE_URL`, `go vet ./...`, and `gofmt -l .` are clean.
 - New behavior has tests, including migration and endpoint tests where relevant.
 - CORS stays limited to configured origins.
 - No moderation decision logic lives in core.

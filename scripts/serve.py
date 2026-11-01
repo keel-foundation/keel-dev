@@ -14,15 +14,15 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[1] / "demo"
 HOST = os.getenv("HOST", "127.0.0.1")
 PORT = int(os.getenv("PORT", "3000"))
-MODE = "remote" if os.getenv("TUBEKEEL_MODE", "mock").lower() == "remote" else "mock"
-API_BASE = os.getenv("TUBEKEEL_API_BASE_URL", "").rstrip("/")
-MOD_BASE = os.getenv("TUBEKEEL_MODERATION_BASE_URL", "").rstrip("/")
-OPENAPI_URL = os.getenv("TUBEKEEL_OPENAPI_URL", "")
-TOKEN = os.getenv("TUBEKEEL_DEMO_TOKEN", "")
+MODE = "remote" if os.getenv("KEELTUBE_MODE", "mock").lower() == "remote" else "mock"
+API_BASE = os.getenv("KEELTUBE_API_BASE_URL", "").rstrip("/")
+MOD_BASE = os.getenv("KEELTUBE_MODERATION_BASE_URL", "").rstrip("/")
+OPENAPI_URL = os.getenv("KEELTUBE_OPENAPI_URL", "")
+TOKEN = os.getenv("KEELTUBE_DEMO_TOKEN", "")
 
 
 class DemoHandler(SimpleHTTPRequestHandler):
-    server_version = "TubeKeelDemo/1.0"
+    server_version = "KeelTubeDemo/1.0"
 
     def do_GET(self) -> None:
         if urlsplit(self.path).path == "/config.js":
@@ -85,7 +85,7 @@ class DemoHandler(SimpleHTTPRequestHandler):
             "openapiUrl": OPENAPI_URL,
             "configured": MODE == "mock" or bool(API_BASE and MOD_BASE),
         }
-        body = ("window.TUBEKEEL_CONFIG = " + json.dumps(config, separators=(",", ":")) + ";\n").encode(
+        body = ("window.KEELTUBE_CONFIG = " + json.dumps(config, separators=(",", ":")) + ";\n").encode(
             "utf-8"
         )
         self.send_response(200)
@@ -114,8 +114,8 @@ class DemoHandler(SimpleHTTPRequestHandler):
                 503,
                 {
                     "detail": (
-                        "Stage mode is not configured. Set TUBEKEEL_API_BASE_URL "
-                        "and TUBEKEEL_MODERATION_BASE_URL."
+                        "Stage mode is not configured. Set KEELTUBE_API_BASE_URL "
+                        "and KEELTUBE_MODERATION_BASE_URL."
                     )
                 },
             )
@@ -182,7 +182,7 @@ def main() -> int:
     handler = partial(DemoHandler, directory=str(ROOT))
     server = ThreadingHTTPServer((HOST, PORT), handler)
     display_host = "localhost" if HOST in {"127.0.0.1", "0.0.0.0", "::1"} else HOST
-    print(f"TubeKeel demo: http://{display_host}:{PORT}")
+    print(f"KeelTube demo: http://{display_host}:{PORT}")
     if MODE == "remote":
         print(f"Mode: remote")
         print(f"  core proxy: {API_BASE or 'not configured'}")

@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PRIVATE_REPOS = ("keel-governance", "keel-infra", "keel-security")
+PRIVATE_REPOS = ("keel-governance", "keel-infra", "keel-security", "keel-branding")
 
 
 def git(*args: str) -> subprocess.CompletedProcess[str]:

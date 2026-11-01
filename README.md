@@ -1,6 +1,6 @@
 # keel-dev
 
-The public front door for **TubeKeel**.
+The public front door for **KeelTube**.
 
 This repository is intentionally small. It contains:
 
@@ -8,7 +8,7 @@ This repository is intentionally small. It contains:
 - contribution guides for the public repositories;
 - staging integration notes for connecting the demo to real services.
 
-It does **not** contain or require the full TubeKeel ecosystem. You do not need to clone every repository, start every service, or run the pipeline to contribute.
+It does **not** contain or require the full KeelTube ecosystem. You do not need to clone every repository, start every service, or run the pipeline to contribute.
 
 Full-stack local setup is reserved for the author and maintainer group. That guide lives in the private `keel-infra` repository. Public contributors should run the single module they are changing and use stage endpoints or the mocked demo for everything else.
 
@@ -29,11 +29,11 @@ The demo is mocked by default. It simulates the signal, case, enforcement action
 When stage endpoints are available, run the demo in stage mode:
 
 ```sh
-TUBEKEEL_MODE=remote \
-TUBEKEEL_API_BASE_URL=https://stage-api.example.org \
-TUBEKEEL_MODERATION_BASE_URL=https://stage-moderation.example.org \
-TUBEKEEL_OPENAPI_URL=https://stage-api.example.org/openapi.yaml \
-TUBEKEEL_DEMO_TOKEN=replace-me \
+KEELTUBE_MODE=remote \
+KEELTUBE_API_BASE_URL=https://stage-api.example.org \
+KEELTUBE_MODERATION_BASE_URL=https://stage-moderation.example.org \
+KEELTUBE_OPENAPI_URL=https://stage-api.example.org/openapi.yaml \
+KEELTUBE_DEMO_TOKEN=replace-me \
 make demo
 ```
 
@@ -66,9 +66,10 @@ The short version:
 
 ## Workspace boundary
 
-`keel-governance`, `keel-infra`, and `keel-security` are private repositories. They are separate
-checkouts. When they are placed inside this working tree, this repository ignores them. Never
-copy, commit, or push their contents into `keel-dev` or any other public repository.
+`keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private repositories.
+They are separate checkouts. When they are placed inside this working tree, this repository
+ignores them. Never copy, commit, or push their contents into `keel-dev` or any other public
+repository.
 
 Run the boundary check before pushing:
 

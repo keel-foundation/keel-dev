@@ -22,9 +22,9 @@ The current demo worker serves the sample clip on `127.0.0.1:8081`. It does not 
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `TUBEKEEL_PIPELINE_ADDR` | `127.0.0.1:8081` | Listen address |
-| `TUBEKEEL_DEMO_VIDEO` | `demo/sample.mp4` | Demo clip |
-| `TUBEKEEL_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
+| `KEELTUBE_PIPELINE_ADDR` | `127.0.0.1:8081` | Listen address |
+| `KEELTUBE_DEMO_VIDEO` | `demo/sample.mp4` | Demo clip |
+| `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
 
 Use the private maintainer stack in `keel-infra` only when your change needs PostgreSQL, NATS, or S3. Public contributors should not need the full stack.
 
@@ -34,9 +34,9 @@ Point the demo at local core and pipeline:
 
 ```sh
 cd keel-dev
-TUBEKEEL_MODE=remote \
-TUBEKEEL_API_BASE_URL=http://127.0.0.1:8080 \
-TUBEKEEL_MODERATION_BASE_URL=http://127.0.0.1:8082 \
+KEELTUBE_MODE=remote \
+KEELTUBE_API_BASE_URL=http://127.0.0.1:8080 \
+KEELTUBE_MODERATION_BASE_URL=http://127.0.0.1:8082 \
 make demo
 ```
 

@@ -1,4 +1,4 @@
-const config = window.TUBEKEEL_CONFIG || {};
+const config = window.KEELTUBE_CONFIG || {};
 const MODE = config.mode === "remote" ? "remote" : "mock";
 const API_BASE = (config.apiBaseUrl || "/api").replace(/\/$/, "");
 const MOD_BASE = (config.moderationBaseUrl || "/moderation").replace(/\/$/, "");
@@ -685,7 +685,7 @@ elements.video.addEventListener("error", () => {
 renderMode();
 if (MODE === "remote" && config.configured === false) {
   setError(
-    "Stage mode is enabled but TUBEKEEL_API_BASE_URL and TUBEKEEL_MODERATION_BASE_URL are not both set."
+    "Stage mode is enabled but KEELTUBE_API_BASE_URL and KEELTUBE_MODERATION_BASE_URL are not both set."
   );
 }
 setBusy(true);
