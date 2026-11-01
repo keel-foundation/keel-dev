@@ -14,12 +14,12 @@ npm ci
 npm test
 npm run typecheck
 npm run build
-npm run dev -- -H 127.0.0.1
+npm run dev
 ```
 
-The public feed, watch page, and channel page use local preview data and need no backend. Set
-`NEXT_PUBLIC_DATA_SOURCE=api` when connecting the backend. Maintainers can start the backend
-stack with:
+The public feed, watch page, and channel page use local preview data and need no backend. API mode
+is reserved for when the core read APIs are connected. Maintainers can start the backend stack
+with:
 
 ```sh
 docker compose -f keel-infra/devstack/apps.compose.yml up -d --build
@@ -36,19 +36,19 @@ npm run test:e2e
 
 | Variable | Purpose |
 |---|---|
-| `NEXT_PUBLIC_DATA_SOURCE` | `mock` (preview data) or `api` |
-| `NEXT_PUBLIC_CORE_URL` | Core API base URL in API mode |
-| `NEXT_PUBLIC_MODERATION_URL` | Moderation API base URL in API mode |
+| `VITE_DATA_SOURCE` | `mock` (preview data); `api` is reserved |
+| `VITE_CORE_URL` | Core API base URL when API mode is wired |
+| `VITE_MODERATION_URL` | Moderation API base URL when API mode is wired |
 
 Use stage URLs when you are not changing the backend:
 
 ```sh
-NEXT_PUBLIC_CORE_URL=https://stage-api.example.org \
-NEXT_PUBLIC_MODERATION_URL=https://stage-moderation.example.org \
-npm run dev -- -H 127.0.0.1
+VITE_CORE_URL=https://stage-api.example.org \
+VITE_MODERATION_URL=https://stage-moderation.example.org \
+npm run dev
 ```
 
-Do not put a moderation token in a `NEXT_PUBLIC_*` variable; public variables are shipped to the
+Do not put a moderation token in a `VITE_*` variable; public variables are shipped to the
 browser. The moderation console must use a server-side session.
 
 ## PR checklist

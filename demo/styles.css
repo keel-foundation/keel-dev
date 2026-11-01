@@ -31,19 +31,19 @@
 
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #faf7fa;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-raised: #f2e8f2;
-  --surface-soft: #faf5fa;
-  --text: #141414;
-  --muted: #6e676e;
-  --faint: #6e676e;
+  --surface-raised: #f2f2f2;
+  --surface-soft: #fafafa;
+  --text: #0f0f0f;
+  --muted: #606060;
+  --faint: #606060;
   --primary: #9c599c;
   --primary-300: #af73af;
   --primary-700: #693a69;
   --primary-100: #f2e8f2;
-  --border: #e4d1e4;
-  --border-strong: #d7d0d7;
+  --border: #e5e5e5;
+  --border-strong: #d9d9d9;
   --focus: #693a69;
   --shadow: 0 24px 80px rgba(78, 43, 78, 0.12);
   --active-bg: #4e2b4e;
@@ -270,9 +270,9 @@ h1 {
   min-height: 34px;
   padding: 6px 10px;
   font-size: 12px;
-  font-family: var(--mono);
+  font-family: var(--body);
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.01em;
 }
 
 .button:disabled {
