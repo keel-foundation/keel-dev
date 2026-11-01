@@ -98,13 +98,16 @@ path is tracked here.
 ## Status
 
 The public demo in this repository is mocked. The KeelTube web client is fully built against a
-local data adapter: home, Explore, watch page, channel pages, search, library, creator studio, and the
-creator moderation record, including trust records, cases, appeals, and a browser-verified audit
-ledger. The web client is private while the maintainer pool is established. The core service has
-PostgreSQL-backed actors, channels, and videos. A separate staff
-moderation portal for the Keel team and moderators is planned; the creator app does not expose
-moderator actions. Upload, transcoding, HLS, subscriptions, federation, payouts, content
-protection, and the production staff portal are not implemented yet.
+local data adapter: email/password sign-in, sign-up, email verification, password reset, home,
+Explore, watch page, channel pages, search, library, creator studio, and the creator moderation
+record, including trust records, cases, appeals, and a browser-verified audit ledger. The
+authentication UI also shows Google, Apple, and X provider options; provider OAuth approval and
+configuration are pending, so those buttons offer the demo account. The web client is private
+while the maintainer pool is established. The core service has PostgreSQL-backed actors,
+channels, and videos. A separate staff moderation portal for the Keel team and moderators is
+planned; the creator app does not expose moderator actions. Upload, transcoding, HLS,
+subscriptions, federation, payouts, content protection, and the production staff portal are not
+implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 

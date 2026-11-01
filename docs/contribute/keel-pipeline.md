@@ -16,7 +16,7 @@ go vet ./...
 gofmt -l .
 ```
 
-The current demo worker serves the sample clip on `127.0.0.1:8081`. It does not require the pipeline, core, moderation, PostgreSQL, NATS, or object storage for the current tests.
+The current demo worker serves the sample clip on `127.0.0.1:8081`. It does not require core, moderation, PostgreSQL, NATS, or object storage for the current tests.
 
 ## Configuration
 
