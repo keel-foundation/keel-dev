@@ -13,10 +13,10 @@ Run the checks for the repository you changed:
 
 | Repository | Required checks |
 |---|---|
-| `keel-core` | `go test ./...`, `go vet ./...`, `gofmt -l .` |
+| `keel-core` | `TUBEKEEL_TEST_DATABASE_URL=... go test -p 1 ./...`, `go vet ./...`, `gofmt -l .` |
 | `keel-pipeline` | `go test ./...`, `go vet ./...`, `gofmt -l .` |
 | `keel-moderation` | `pytest`, `ruff check app tests` |
-| `keel-web` | `npm test`, `npm run typecheck`, `npm run build`, `npm run format:check` |
+| `keel-web` | `npm test`, `npm run typecheck`, `npm run build`, `npm run format:check`; `npm run test:e2e` for watch/player changes |
 | `keel-spec` | `python scripts/validate_schemas.py`, docs link check |
 | `keel-dev` | `make test` |
 | `keel-docs` | docs link check |

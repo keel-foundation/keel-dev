@@ -21,12 +21,15 @@ Use the repository's own README. The common commands are:
 
 ```sh
 # Go
-go test ./...
+# keel-core database tests need PostgreSQL and serialized packages:
+TUBEKEEL_TEST_DATABASE_URL='postgres://...' go test -p 1 ./...
+go test ./...          # pipeline
 go vet ./...
 
 # Python
 python3 -m venv .venv
-.venv/bin/pip install -e '.[dev]'
+.venv/bin/pip install -r requirements-dev.lock
+.venv/bin/pip install -e . --no-deps
 .venv/bin/pytest -q
 .venv/bin/ruff check .
 
@@ -35,6 +38,8 @@ npm ci
 npm test
 npm run typecheck
 npm run build
+npm run format:check
+npm run test:e2e       # watch/player changes, with the backend running
 ```
 
 ## 4. Make a focused branch

@@ -17,6 +17,20 @@ npm run build
 npm run dev -- -H 127.0.0.1
 ```
 
+The landing page and `/demo` work without extra services. The `/watch/[id]` page needs
+`keel-core` with seeded data. Maintainers can start the backend stack with:
+
+```sh
+docker compose -f keel-infra/devstack/apps.compose.yml up -d --build
+```
+
+End-to-end watch tests:
+
+```sh
+npx playwright install chromium
+npm run test:e2e
+```
+
 ## Configuration
 
 | Variable | Purpose |
@@ -38,6 +52,7 @@ Do not put a production token in a `NEXT_PUBLIC_*` variable. Public variables ar
 ## PR checklist
 
 - `npm test`, `npm run typecheck`, `npm run build`, and `npm run format:check` pass.
+- Route and player changes have a Playwright test (`npm run test:e2e`) where practical.
 - New behavior has tests where practical.
 - Accessibility is checked: keyboard access, labels, focus, captions, and errors announced to assistive technology.
 - The UI does not invent moderation decisions or bypass human-review gates.

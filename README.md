@@ -94,7 +94,10 @@ path is tracked here.
 
 ## Status
 
-The public demo is mocked. The real classifier, database, upload path, pipeline, federation, payouts, and production moderation console are not implemented yet.
+The public demo in this repository is mocked. The separate core service now has PostgreSQL-backed
+actors, channels, and videos, and the web client has a watch page. Upload, transcoding, HLS,
+subscriptions, federation, payouts, content protection, and the production moderation console are
+not implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 

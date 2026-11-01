@@ -15,7 +15,13 @@ python3 -m venv .venv
 .venv/bin/python scripts/validate_schemas.py
 ```
 
-The validator checks schema meta-validity, every example, and `openapi.yaml`.
+The validator checks schema meta-validity, resolves cross-schema references, validates every
+example, and validates `openapi.yaml`.
+
+The current schemas are `actor`, `channel`, `playback-manifest`, `video`, `signal`,
+`moderation-case`, `enforcement-action`, `appeal`, and `audit-record`. Moderation v0.1 is frozen
+as of 2026-11-01; see [DECISIONS.md](https://github.com/keel-foundation/keel-spec/blob/main/DECISIONS.md).
+
 
 ## Changing a schema
 
@@ -36,6 +42,7 @@ Do not change an accepted RFC in place. Supersede it with a new RFC.
 - Tightening validation is breaking unless the old value was invalid.
 - `additionalProperties: false` means new fields must be added to the schema and all examples.
 - IDs are opaque and stable across export/import.
+- Moderation v0.1 changes must be backward-compatible until v0.2.
 
 ## PR checklist
 
