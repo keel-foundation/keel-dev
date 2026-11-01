@@ -97,12 +97,13 @@ path is tracked here.
 
 ## Status
 
-The public demo in this repository is mocked. The web client is fully built against local preview
-data: feed, watch page, channel pages, search, library, creator studio, and moderation console,
-including trust records, appeals, cases, and a browser-verified audit ledger. The core service has
-PostgreSQL-backed actors, channels, and videos. Upload, transcoding, HLS, subscriptions,
-federation, payouts, content protection, and the production moderation console are not implemented
-yet.
+The public demo in this repository is mocked. The KeelTube web client is fully built against a
+local data adapter: feed, watch page, channel pages, search, library, creator studio, and the
+creator moderation record, including trust records, cases, appeals, and a browser-verified audit
+ledger. The core service has PostgreSQL-backed actors, channels, and videos. A separate staff
+moderation portal for the Keel team and moderators is planned; the creator app does not expose
+moderator actions. Upload, transcoding, HLS, subscriptions, federation, payouts, content
+protection, and the production staff portal are not implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 
