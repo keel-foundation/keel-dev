@@ -3,12 +3,12 @@
 Repository: [keel-foundation/keel-web](https://github.com/keel-foundation/keel-web)
 
 This repository is the full web client: home, Explore, watch page, channels, search, library, creator
-studio, and the creator moderation record. The UI is implemented against a local data adapter; the
+studio, Cases & appeals, and the published-video editor. The UI is implemented against a local data adapter; the
 core and moderation API adapters are the next integration step.
 
 **Creator and staff moderation are separate.** Creators inspect cases about their own videos, read
 the evidence and Statement of Reasons, file appeals, and export their audit records under
-`/studio/moderation`. The Keel team and moderators review cases and perform enforcement actions in
+`/studio/moderation`. Cases & appeals is a separate workspace area from Creator Studio. The Keel team and moderators review cases and perform enforcement actions in
 a separate staff portal with its own privileged session. That portal is not part of the
 creator-facing application and will be implemented later in `keel-web` or in a separate
 repository.
