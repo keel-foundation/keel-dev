@@ -33,7 +33,7 @@ python3 -m venv .venv
 .venv/bin/pytest -q
 .venv/bin/ruff check .
 
-# Node
+# Node (keel-web is private; maintainers only)
 npm ci
 npm run lint
 npm test

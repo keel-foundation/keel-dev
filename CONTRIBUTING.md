@@ -24,8 +24,9 @@ git commit -s -m "feat: add video manifest endpoint"
 
 Do not add a CLA. Do not commit secrets, credentials, private governance text, or customer data.
 
-This repository is public. `keel-governance`, `keel-infra`, `keel-security`, and `keel-branding`
-are private repositories. Do not copy their contents here or run `git add -A` from the workspace
+This repository is public. `keel-web`, `keel-governance`, `keel-infra`, `keel-security`, and
+`keel-branding` are private repositories. `keel-web` is private until the maintainer pool is
+established. Do not copy their contents here or run `git add -A` from the workspace
 root without running `make boundary` first.
 
 ## Which repository?
@@ -35,7 +36,7 @@ root without running `make boundary` first.
 | API, identity, channels, videos, subscriptions | `keel-core` |
 | Ingest, transcode, package, thumbnails | [`keel-pipeline`](docs/contribute/keel-pipeline.md) |
 | Signals, cases, policy engine, appeals, ledger | `keel-moderation` |
-| Viewer, creator studio, moderation console | `keel-web` |
+| Viewer, creator studio, creator moderation record (private) | `keel-web` |
 | Protocol, schemas, OpenAPI, RFCs | `keel-spec` |
 | Public documentation | [`keel-docs`](docs/contribute/keel-docs.md) |
 | The public demo and contribution hub | `keel-dev` |
@@ -46,7 +47,7 @@ See [repositories](docs/contribute/repositories.md) for links.
 
 - Working on core? Run `keel-core` only. Point the demo at it with `KEELTUBE_API_BASE_URL`.
 - Working on moderation or policy? Run `keel-moderation` only. Point the demo at it with `KEELTUBE_MODERATION_BASE_URL`.
-- Working on web? Run `keel-web` only.
+- Working on web? Run `keel-web` only. This repository is private and maintainer-only for now.
 - Working on schemas? Run the `keel-spec` validator only.
 - The full pipeline, federation, payouts, and production infrastructure are maintainer-only and are documented in the private `keel-infra` repository.
 

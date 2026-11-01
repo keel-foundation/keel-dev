@@ -53,7 +53,7 @@ Pick one repository. Do not clone the ecosystem.
 | `keel-moderation` | [docs/contribute/keel-moderation.md](docs/contribute/keel-moderation.md) |
 | Policy and appeals | [docs/contribute/policy.md](docs/contribute/policy.md) |
 | `keel-spec` | [docs/contribute/keel-spec.md](docs/contribute/keel-spec.md) |
-| `keel-web` | [docs/contribute/keel-web.md](docs/contribute/keel-web.md) |
+| `keel-web` (private) | Maintainers only. See [docs/contribute/keel-web.md](docs/contribute/keel-web.md). |
 | `keel-docs` | [docs/contribute/keel-docs.md](docs/contribute/keel-docs.md) |
 | PR rules | [docs/contribute/pr-guidelines.md](docs/contribute/pr-guidelines.md) |
 | Repository map | [docs/contribute/repositories.md](docs/contribute/repositories.md) |
@@ -68,7 +68,7 @@ The short version:
 
 ## Workspace boundary
 
-`keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private repositories.
+`keel-web`, `keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private repositories.
 They are separate checkouts. When they are placed inside this working tree, this repository
 ignores them. Never copy, commit, or push their contents into `keel-dev` or any other public
 repository.
@@ -100,7 +100,8 @@ path is tracked here.
 The public demo in this repository is mocked. The KeelTube web client is fully built against a
 local data adapter: home, Explore, watch page, channel pages, search, library, creator studio, and the
 creator moderation record, including trust records, cases, appeals, and a browser-verified audit
-ledger. The core service has PostgreSQL-backed actors, channels, and videos. A separate staff
+ledger. The web client is private while the maintainer pool is established. The core service has
+PostgreSQL-backed actors, channels, and videos. A separate staff
 moderation portal for the Keel team and moderators is planned; the creator app does not expose
 moderator actions. Upload, transcoding, HLS, subscriptions, federation, payouts, content
 protection, and the production staff portal are not implemented yet.

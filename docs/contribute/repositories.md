@@ -1,21 +1,30 @@
-# Public repositories
+# Repositories
 
-Clone only the repository you need.
+Clone only the public repository you need. Private repositories are maintainer-only.
 
 | Repository | Purpose |
 |---|---|
 | [`keel-spec`](https://github.com/keel-foundation/keel-spec) | Protocol, RFCs, JSON Schemas, and OpenAPI. |
 | [`keel-core`](https://github.com/keel-foundation/keel-core) | API, identity, channels, videos, subscriptions. |
 | [`keel-pipeline`](https://github.com/keel-foundation/keel-pipeline) | Ingest, transcode, package, thumbnails. |
-| [`keel-web`](https://github.com/keel-foundation/keel-web) | Viewer, creator studio, and the creator moderation record. The staff moderation portal is separate. |
 | [`keel-moderation`](https://github.com/keel-foundation/keel-moderation) | Signals, cases, appeals, audit ledger, content protection. |
 | [`keel-dev`](https://github.com/keel-foundation/keel-dev) | This demo and contribution hub. |
 | [`keel-docs`](https://github.com/keel-foundation/keel-docs) | Public creator and developer documentation. |
 | [`.github`](https://github.com/keel-foundation/.github) | Organization profile, community health, reusable CI. |
 
-`keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private. Access is
-granted by maintainers. They are separate repositories. Do not copy their contents into a public
-repository, and run `make boundary` before pushing changes from this workspace.
+## Private repositories
+
+These repositories are maintainer-only. Access is granted by maintainers. They are separate
+repositories. Do not clone, mirror, copy, or redistribute their contents without maintainer
+approval. Run `make boundary` before pushing changes from this workspace.
+
+| Repository | Purpose |
+|---|---|
+| [`keel-web`](https://github.com/keel-foundation/keel-web) | Viewer, creator studio, and creator moderation record. Private until the maintainer pool is established. |
+| `keel-governance` | Constitution, whitepaper, board, finance, legal. |
+| `keel-infra` | Production infrastructure, environments, runbooks, dev stack. |
+| `keel-security` | Threat model, incident response, audits. |
+| `keel-branding` | Brand system, source assets, and decisions. |
 
 ## Full-stack setup
 
