@@ -25,9 +25,21 @@ You do not need core, the pipeline, the web app, PostgreSQL, NATS, or object sto
 | Variable | Default | Purpose |
 |---|---|---|
 | `TUBEKEEL_LEDGER_PATH` | `data/ledger.jsonl` | Append-only ledger file |
+| `TUBEKEEL_STATE_DB` | `data/state.sqlite3` | SQLite workflow state |
 | `TUBEKEEL_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
 | `TUBEKEEL_RATE_LIMIT` | `30` | Mutating requests per IP per minute |
-| `TUBEKEEL_DEMO_TOKEN` | unset | Optional bearer token for mutating endpoints |
+| `TUBEKEEL_DEMO_TOKEN` | unset | Legacy single-token demo mode |
+| `TUBEKEEL_CREATOR_TOKEN` | unset | Creator role token for role-enforced mode |
+| `TUBEKEEL_MODERATOR_TOKEN` | unset | Moderator role token for role-enforced mode |
+| `TUBEKEEL_APPEALS_TOKEN` | unset | Appeals reviewer token for role-enforced mode |
+
+The service supports open local mode, a legacy single-token demo mode, and role-enforced mode
+where the creator, moderator, and appeals tokens are distinct. Reviewer independence is enforced
+by the service: an appellant cannot decide their own appeal, and the original decision-maker
+cannot decide the appeal.
+
+Cases, actions, and appeals are stored in SQLite and survive a restart. The audit ledger remains
+append-only JSONL.
 
 ## Connect the demo to local moderation
 
