@@ -24,7 +24,7 @@
   --stage-text: #c494c4;
   --expired-bg: #3a2f3a;
   --expired-text: #e4d1e4;
-  --display: "Sora", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  --display: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
   --body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }

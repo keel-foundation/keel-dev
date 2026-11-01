@@ -13,7 +13,7 @@ make demo
 
 Open `http://localhost:3000`. Use `make demo-open` to open the browser automatically.
 
-The demo uses the approved KeelTube branding: Sora, Inter, IBM Plex Mono, the primary purple
+The demo uses the approved KeelTube branding: Manrope, Inter, IBM Plex Mono, the primary purple
 palette, and a dark/light theme toggle. The theme is stored in `localStorage`.
 
 ## Mock mode

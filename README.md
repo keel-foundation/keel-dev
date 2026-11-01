@@ -24,7 +24,7 @@ Open `http://localhost:3000`.
 
 The demo is mocked by default. It simulates the signal, case, enforcement action, appeal, independent review, and hash-chained ledger entirely in the browser. No backend is required.
 
-The standalone demo uses the approved KeelTube brand system: Sora, Inter, IBM Plex Mono, the primary purple palette, and a dark/light theme toggle. To run it beside `keel-web` on port 3000, use `PORT=3001 make demo`.
+The standalone demo uses the approved KeelTube brand system: Manrope, Inter, IBM Plex Mono, the primary purple palette, and a dark/light theme toggle. To run it beside `keel-web` on port 3000, use `PORT=3001 make demo`.
 
 ## Connect to stage
 
@@ -98,7 +98,7 @@ path is tracked here.
 ## Status
 
 The public demo in this repository is mocked. The KeelTube web client is fully built against a
-local data adapter: feed, watch page, channel pages, search, library, creator studio, and the
+local data adapter: home, Explore, watch page, channel pages, search, library, creator studio, and the
 creator moderation record, including trust records, cases, appeals, and a browser-verified audit
 ledger. The core service has PostgreSQL-backed actors, channels, and videos. A separate staff
 moderation portal for the Keel team and moderators is planned; the creator app does not expose

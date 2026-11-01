@@ -2,7 +2,7 @@
 
 Repository: [keel-foundation/keel-web](https://github.com/keel-foundation/keel-web)
 
-This repository is the full web client: public feed, watch page, channels, search, library, creator
+This repository is the full web client: home, Explore, watch page, channels, search, library, creator
 studio, and the creator moderation record. The UI is implemented against a local data adapter; the
 core and moderation API adapters are the next integration step.
 
