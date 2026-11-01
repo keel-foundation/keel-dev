@@ -97,10 +97,11 @@ path is tracked here.
 
 ## Status
 
-The public demo in this repository is mocked. The separate core service now has PostgreSQL-backed
-actors, channels, and videos, and the web client has a branded public site and watch page. Upload,
-transcoding, HLS, subscriptions, federation, payouts, content protection, and the production
-moderation console are not implemented yet.
+The public demo in this repository is mocked. The web client now has a branded public feed, watch
+page, channel pages, and creator-studio and moderation route shells running on local preview data.
+The core service has PostgreSQL-backed actors, channels, and videos. Upload, transcoding, HLS,
+subscriptions, federation, payouts, content protection, and the production moderation console are
+not implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 
