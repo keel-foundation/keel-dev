@@ -84,6 +84,9 @@ PostgreSQL image.
 - Creator Studio: creator-scoped video CRUD, visibility/publish transitions, immutable versions,
   studio stats, S3 multipart upload intents, deterministic copyright/policy scans, PostgreSQL media
   job queue, ffmpeg HLS/MP4/thumbnail processing, private media playback gateway.
+- Watch telemetry: anonymous visitor cookies, deduplicated view sessions, idempotent playback
+  heartbeats, impression/click events, 90-day raw retention, permanent daily aggregates, and
+  creator analytics endpoints.
 - Seed: demo actor/channel/videos, optional demo account, refreshes video embeddings.
 
 ### Key locations
@@ -97,8 +100,10 @@ PostgreSQL image.
 | Discovery store | `internal/store/discovery.go` |
 | Discovery engine | `internal/discovery/embedder.go`, `internal/discovery/engine.go` |
 | Studio store | `internal/store/studio.go` |
+| Analytics store | `internal/store/analytics.go` |
+| Analytics API | `internal/api/analytics.go`, `internal/api/telemetry.go` |
 | Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
-| Migrations | `internal/db/migrations/0001…0008` |
+| Migrations | `internal/db/migrations/0001…0009` |
 | Seed | `internal/seed/seed.go`, `cmd/seed/main.go` |
 | Tests | `internal/*/*_test.go` |
 
@@ -125,6 +130,9 @@ PostgreSQL image.
 - Media playback gateway: `/api/v1/media/{id}/video.mp4`, `/api/v1/media/{id}/thumbnail.jpg`,
   `/api/v1/media/{id}/captions.vtt`, `/api/v1/media/{id}/subtitles/{track_id}`,
   `/api/v1/media/{id}/hls/master.m3u8`, and HLS variants/segments.
+- Analytics: `/api/v1/videos/{id}/view`, `/api/v1/videos/{id}/view/progress`,
+  `/api/v1/telemetry/events`, `/api/v1/studio/analytics/summary`,
+  `/api/v1/studio/analytics/timeseries`, `/api/v1/studio/videos/{id}/analytics`.
 
 ### Discovery details
 
@@ -333,7 +341,7 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 - Staff moderation portal, real signal ingestion, reports, and transparency aggregates.
 - Moderation PostgreSQL persistence and signed ledger anchor.
 - Monetization, payouts, federation, and production OIDC/social providers.
-- Discovery: view-completion signals, impression/click tracking, cross-encoder reranking, evaluation.
+- Discovery: cross-encoder reranking and evaluation on top of completion and impression data.
 - Comment moderation/pin actions and view deduplication.
 
 ## Quick test matrix
