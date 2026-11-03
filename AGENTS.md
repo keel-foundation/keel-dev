@@ -217,12 +217,21 @@ Install `.[model]` for the real sentence-transformers runtime. The devstack defa
 ## keel-moderation
 
 Python/FastAPI. Local demo with durable SQLite workflow state and an append-only JSONL audit ledger.
-Roles: `creator`, `moderator`, `appeals`. Reviewer independence is enforced. Read endpoints are
-unauthenticated in open local mode; do not expose to a shared network.
+Roles: `creator`, `moderator`, `appeals`. Reviewer independence is enforced. Legacy demo read
+endpoints are unauthenticated in open local mode; do not expose to a shared network. Creator
+records are channel-scoped and require the creator role in role-enforced mode.
 
 Key endpoints: `/health`, `/v1/policies`, `/v1/demo/state`, `/v1/demo/reset`, `/v1/whoami`,
 `/v1/actions`, `/v1/actions/{id}/appeal`, `/v1/appeals/{id}/decide`, `/v1/appeals`,
-`/v1/appeals/{id}`, `/v1/ledger`, `/v1/ledger/verify`, `/v1/ledger/export`.
+`/v1/appeals/{id}`, `/v1/creator/summary`, `/v1/creator/cases`, `/v1/creator/actions`,
+`/v1/creator/appeals`, `/v1/creator/ledger`, `/v1/creator/ledger/verify`,
+`/v1/creator/ledger/export`, `/v1/ledger`, `/v1/ledger/verify`, `/v1/ledger/export`.
+
+Creator scoping uses authenticated principal channel claims. The demo token authenticator reads
+`KEELTUBE_CREATOR_CHANNEL_MAP` (default `{"creator:demo":["ch_demo"]}`); production OIDC/session
+auth must supply the same claim. Explicit `channel_id` columns on cases, actions, and appeals back
+the queries. Ledger records carry a top-level `channel_id`; creator ledger reads never use payload
+string matching.
 
 Commands:
 
@@ -237,7 +246,7 @@ python3 -m venv .venv
 ```
 
 Known next steps: PostgreSQL persistence, signed external ledger anchor, policy bundle loader, SLA
-timers, real signal ingestion, transparency generator. Reports belong here, not in core.
+timers, real signal ingestion, public transparency generator. Reports belong here, not in core.
 
 ## keel-pipeline
 
