@@ -81,6 +81,9 @@ PostgreSQL image.
   one-level replies, comment likes, clear history.
 - Discovery: video/actor embeddings in pgvector, personalized feed, personalized Explore sections
   with reasons, cold-start trending/latest mix, diversity, actor cache invalidation.
+- Creator Studio: creator-scoped video CRUD, visibility/publish transitions, immutable versions,
+  studio stats, S3 multipart upload intents, deterministic copyright/policy scans, PostgreSQL media
+  job queue, ffmpeg HLS/MP4/thumbnail processing, private media playback gateway.
 - Seed: demo actor/channel/videos, optional demo account, refreshes video embeddings.
 
 ### Key locations
@@ -93,7 +96,9 @@ PostgreSQL image.
 | Engagement store | `internal/store/engagement.go`, `internal/store/comments.go` |
 | Discovery store | `internal/store/discovery.go` |
 | Discovery engine | `internal/discovery/embedder.go`, `internal/discovery/engine.go` |
-| Migrations | `internal/db/migrations/0001…0006` |
+| Studio store | `internal/store/studio.go` |
+| Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
+| Migrations | `internal/db/migrations/0001…0008` |
 | Seed | `internal/seed/seed.go`, `cmd/seed/main.go` |
 | Tests | `internal/*/*_test.go` |
 
@@ -112,6 +117,14 @@ PostgreSQL image.
   `because_you_liked`, `because_you_saved`, `recently_watched`, `trending`, `new`, `recommended`).
 - `GET /api/v1/explore` returns personalized sections when signals exist, otherwise the editorial
   collections.
+- Studio: `/api/v1/studio/channel`, `/api/v1/studio/videos`, `/api/v1/studio/videos/{id}`,
+  `/api/v1/studio/videos/{id}/publish`, `/api/v1/studio/videos/{id}/unpublish`,
+  `/api/v1/studio/videos/{id}/versions`, `/api/v1/studio/videos/{id}/subtitles`,
+  `/api/v1/studio/videos/{id}/thumbnail`, `/api/v1/studio/stats`, `/api/v1/studio/uploads`,
+  `/api/v1/studio/uploads/{id}/scans`.
+- Media playback gateway: `/api/v1/media/{id}/video.mp4`, `/api/v1/media/{id}/thumbnail.jpg`,
+  `/api/v1/media/{id}/captions.vtt`, `/api/v1/media/{id}/subtitles/{track_id}`,
+  `/api/v1/media/{id}/hls/master.m3u8`, and HLS variants/segments.
 
 ### Discovery details
 
@@ -124,6 +137,10 @@ PostgreSQL image.
   embedder. If the HTTP service is unavailable, feed/Explore fall back to cold start/editorial.
 - Video embeddings are refreshed by the seed and lazily before discovery requests. Actor embeddings
   are cached in PostgreSQL and invalidated on watch/reaction/save/subscription writes.
+- Creator Studio media requires an S3-compatible bucket (`KEELTUBE_MEDIA_S3_*`), ffmpeg/ffprobe,
+  and a private bucket. There is no local filesystem storage fallback. Uploads use presigned
+  multipart URLs; core checks ownership and serves playback through short-lived presigned redirects.
+  See `keel-core/README.md` for the full media configuration and bucket policy.
 - `internal/discovery` has tests for the HTTP embedder, hash embedder, cold start, personalization,
   reasons, and invalidation.
 
@@ -302,7 +319,8 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 ## Current limitations / likely next work
 
 - Wire `keel-web` to `keel-core`, `keel-moderation`, and `keel-embeddings`; remove the mock data seam.
-- Upload, transcoding, HLS, thumbnails, and content-hash manifests in `keel-pipeline`.
+- `keel-pipeline` remains a demo media server; Creator Studio upload, transcoding, HLS, and
+  thumbnails are handled by the core media engine.
 - Staff moderation portal, real signal ingestion, reports, and transparency aggregates.
 - Moderation PostgreSQL persistence and signed ledger anchor.
 - Monetization, payouts, federation, and production OIDC/social providers.
