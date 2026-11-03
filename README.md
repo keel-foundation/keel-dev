@@ -68,7 +68,7 @@ The short version:
 
 ## Workspace boundary
 
-`keel-web`, `keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private repositories.
+`keel-web`, `keel-embeddings`, `keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private repositories.
 They are separate checkouts. When they are placed inside this working tree, this repository
 ignores them. Never copy, commit, or push their contents into `keel-dev` or any other public
 repository.

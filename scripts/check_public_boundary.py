@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PRIVATE_REPOS = (
     "keel-web",
+    "keel-embeddings",
     "keel-governance",
     "keel-infra",
     "keel-security",

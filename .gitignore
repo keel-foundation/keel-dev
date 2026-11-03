@@ -15,6 +15,7 @@ node_modules/
 /keel-pipeline/
 /keel-web/
 /keel-moderation/
+/keel-embeddings/
 /keel-docs/
 /keel-governance/
 /keel-infra/
