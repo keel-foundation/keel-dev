@@ -11,7 +11,8 @@ requires PostgreSQL; you do not need the pipeline, moderation, web app, or NATS 
 git clone https://github.com/keel-foundation/keel-core.git
 cd keel-core
 
-export KEELTUBE_DATABASE_URL='postgres://keeltube:keeltube-dev@127.0.0.1:5432/keeltube?sslmode=disable'
+cp .env.example .env
+# edit KEELTUBE_DATABASE_URL in .env
 go run ./cmd/seed
 go run ./cmd/api
 ```
@@ -24,7 +25,7 @@ Core listens on `127.0.0.1:8080` by default. The seed is idempotent and creates 
 | Variable | Default | Purpose |
 |---|---|---|
 | `KEELTUBE_CORE_ADDR` | `127.0.0.1:8080` | Listen address |
-| `KEELTUBE_DATABASE_URL` | `postgres://keeltube:keeltube-dev@127.0.0.1:5432/keeltube?sslmode=disable` | PostgreSQL DSN |
+| `KEELTUBE_DATABASE_URL` | required | PostgreSQL DSN (set in `.env`) |
 | `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
 | `KEELTUBE_DEV_ACTOR_ID` | `usr_demo` | Dev auth principal |
 | `KEELTUBE_DEV_ACTOR_TOKEN` | unset | Optional dev bearer token |
@@ -58,7 +59,7 @@ Database tests require `KEELTUBE_TEST_DATABASE_URL`. Run packages sequentially b
 the test tables:
 
 ```sh
-KEELTUBE_TEST_DATABASE_URL='postgres://keeltube:keeltube-dev@127.0.0.1:5432/keeltube?sslmode=disable' \
+KEELTUBE_TEST_DATABASE_URL='postgres://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=disable' \
   go test -p 1 ./...
 ```
 
