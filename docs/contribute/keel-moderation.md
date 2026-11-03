@@ -18,7 +18,7 @@ python3 -m venv .venv
 .venv/bin/ruff check app tests
 ```
 
-You do not need core, the pipeline, the web app, PostgreSQL, NATS, or object storage for the current demo.
+You do not need core, the web app, PostgreSQL, NATS, or object storage for the current demo.
 
 ## Configuration
 

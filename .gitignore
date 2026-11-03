@@ -12,7 +12,6 @@ node_modules/
 # Local clones of sibling repositories are not part of this repository.
 /keel-spec/
 /keel-core/
-/keel-pipeline/
 /keel-web/
 /keel-moderation/
 /keel-embeddings/

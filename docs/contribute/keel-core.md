@@ -3,7 +3,7 @@
 Repository: [keel-foundation/keel-core](https://github.com/keel-foundation/keel-core)
 
 You only need `keel-core` for API, identity, channel, video, subscription, and feed work. Core now
-requires PostgreSQL; you do not need the pipeline, moderation, web app, or NATS for most changes.
+requires PostgreSQL; you do not need moderation, the web app, or NATS for most changes.
 
 ## Run only this module
 
@@ -15,6 +15,7 @@ cp .env.example .env
 # edit KEELTUBE_DATABASE_URL in .env
 go run ./cmd/seed
 go run ./cmd/api
+go run ./cmd/worker   # media jobs; requires S3 configuration
 ```
 
 Core listens on `127.0.0.1:8080` by default. The seed is idempotent and creates `usr_demo`,
@@ -29,7 +30,8 @@ Core listens on `127.0.0.1:8080` by default. The seed is idempotent and creates 
 | `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
 | `KEELTUBE_DEV_ACTOR_ID` | `usr_demo` | Dev auth principal |
 | `KEELTUBE_DEV_ACTOR_TOKEN` | unset | Optional dev bearer token |
-| `KEELTUBE_PIPELINE_PUBLIC_URL` | `http://localhost:8081` | Playback URL used by the seed |
+| `KEELTUBE_DEMO_MEDIA_URL` | web demo sample | Playback URL used by the seed |
+| `KEELTUBE_WORKER_ADDR` | `127.0.0.1:8083` | Media worker health/status address |
 | `KEELTUBE_WEB_PUBLIC_URL` | `http://localhost:3000` | Captions URL used by the seed |
 
 ## Endpoints

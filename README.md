@@ -8,7 +8,7 @@ This repository is intentionally small. It contains:
 - contribution guides for the public repositories;
 - staging integration notes for connecting the demo to real services.
 
-It does **not** contain or require the full KeelTube ecosystem. You do not need to clone every repository, start every service, or run the pipeline to contribute.
+It does **not** contain or require the full KeelTube ecosystem. You do not need to clone every repository or start every service to contribute.
 
 Full-stack local setup is reserved for the author and maintainer group. That guide lives in the private `keel-infra` repository. Public contributors should run the single module they are changing and use stage endpoints or the mocked demo for everything else.
 
@@ -49,7 +49,6 @@ Pick one repository. Do not clone the ecosystem.
 |---|---|
 | General workflow | [docs/contribute/get-started.md](docs/contribute/get-started.md) |
 | `keel-core` | [docs/contribute/keel-core.md](docs/contribute/keel-core.md) |
-| `keel-pipeline` | [docs/contribute/keel-pipeline.md](docs/contribute/keel-pipeline.md) |
 | `keel-moderation` | [docs/contribute/keel-moderation.md](docs/contribute/keel-moderation.md) |
 | Policy and appeals | [docs/contribute/policy.md](docs/contribute/policy.md) |
 | `keel-spec` | [docs/contribute/keel-spec.md](docs/contribute/keel-spec.md) |
@@ -104,10 +103,10 @@ record, including trust records, cases, appeals, and a browser-verified audit le
 authentication UI also shows Google, Apple, and X provider options; provider OAuth approval and
 configuration are pending, so those buttons offer the demo account. The web client is private
 while the maintainer pool is established. The core service has PostgreSQL-backed actors,
-channels, and videos. A separate staff moderation portal for the Keel team and moderators is
-planned; the creator app does not expose moderator actions. Upload, transcoding, HLS,
-subscriptions, federation, payouts, content protection, and the production staff portal are not
-implemented yet.
+channels, videos, subscriptions, creator uploads, FFmpeg/HLS processing in a separate worker,
+watch telemetry, analytics, and notifications. A separate staff moderation portal for the Keel
+team and moderators is planned; the creator app does not expose moderator actions. Federation,
+payouts, content protection, and the production staff portal are not implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 

@@ -23,7 +23,6 @@ Use the repository's own README. The common commands are:
 # Go
 # keel-core database tests need PostgreSQL and serialized packages:
 KEELTUBE_TEST_DATABASE_URL='postgres://...' go test -p 1 ./...
-go test ./...          # pipeline
 go vet ./...
 
 # Python

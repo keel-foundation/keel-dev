@@ -34,7 +34,7 @@ root without running `make boundary` first.
 | Change | Repository |
 |---|---|
 | API, identity, channels, videos, subscriptions | `keel-core` |
-| Ingest, transcode, package, thumbnails | [`keel-pipeline`](docs/contribute/keel-pipeline.md) |
+| Ingest, transcode, package, thumbnails | `keel-core` (media engine and worker) |
 | Signals, cases, policy engine, appeals, ledger | `keel-moderation` |
 | Viewer, creator studio, creator moderation record (private) | `keel-web` |
 | Protocol, schemas, OpenAPI, RFCs | `keel-spec` |
@@ -49,7 +49,7 @@ See [repositories](docs/contribute/repositories.md) for links.
 - Working on moderation or policy? Run `keel-moderation` only. Point the demo at it with `KEELTUBE_MODERATION_BASE_URL`.
 - Working on web? Run `keel-web` only. This repository is private and maintainer-only for now.
 - Working on schemas? Run the `keel-spec` validator only.
-- The full pipeline, federation, payouts, and production infrastructure are maintainer-only and are documented in the private `keel-infra` repository.
+- Media processing, federation, payouts, and production infrastructure are maintainer-only and are documented in the private `keel-infra` repository.
 
 ## Pull requests
 

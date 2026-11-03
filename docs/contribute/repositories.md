@@ -6,7 +6,6 @@ Clone only the public repository you need. Private repositories are maintainer-o
 |---|---|
 | [`keel-spec`](https://github.com/keel-foundation/keel-spec) | Protocol, RFCs, JSON Schemas, and OpenAPI. |
 | [`keel-core`](https://github.com/keel-foundation/keel-core) | API, identity, channels, videos, subscriptions. |
-| [`keel-pipeline`](https://github.com/keel-foundation/keel-pipeline) | Ingest, transcode, package, thumbnails. |
 | [`keel-moderation`](https://github.com/keel-foundation/keel-moderation) | Signals, cases, appeals, audit ledger, content protection. |
 | [`keel-dev`](https://github.com/keel-foundation/keel-dev) | This demo and contribution hub. |
 | [`keel-docs`](https://github.com/keel-foundation/keel-docs) | Public creator and developer documentation. |

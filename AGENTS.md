@@ -14,13 +14,12 @@ separate git checkouts. Private repositories are ignored by the root `.gitignore
 |---|---|---|---|---|
 | `keel-dev` (root) | public | Python/Markdown | Public demo, contribution hub, workspace boundary | Mocked creator-appeal demo; docs |
 | `keel-core` | public | Go | Identity, catalog, engagement, discovery API | PostgreSQL + pgvector; auth, catalog, engagement, discovery |
-| `keel-pipeline` | public | Go | Media ingest/transcode/package | Demo media server only; no upload/transcode/HLS |
 | `keel-moderation` | public | Python/FastAPI | Signals, cases, actions, appeals, ledger | SQLite workflow state + append-only JSONL ledger |
 | `keel-spec` | public | YAML/JSON | Protocol, RFCs, schemas, OpenAPI | Contract source of truth |
 | `keel-docs` | public | Markdown | Creator and developer docs | Governance and API docs |
 | `keel-web` | private | React/TypeScript | Viewer, creator studio, creator moderation record | Fully built against local mock data; API adapters pending |
 | `keel-embeddings` | private | Python/FastAPI | Embedding and semantic-retrieval service | Token-protected; hash and sentence-transformers backends |
-| `keel-infra` | private | Docker/Terraform | Devstack and infrastructure | Compose stack includes pgvector, core, embeddings, pipeline, moderation |
+| `keel-infra` | private | Docker/Terraform | Devstack and infrastructure | Compose stack includes pgvector, core, embeddings, moderation, and an optional media worker |
 | `keel-governance` | private | Markdown | Constitution, board, finance, legal | Docs |
 | `keel-security` | private | Markdown | Threat model, audits, incident response | Docs |
 | `keel-branding` | private | Assets/Markdown | Brand system and assets | Assets/decisions |
@@ -34,14 +33,14 @@ the root git index. Run `make boundary` before pushing root changes.
 |---|---|---|
 | Web (`keel-web`) | `http://localhost:3000` | Runs on the host, not in Compose |
 | Core (`keel-core`) | `127.0.0.1:8080` | `/health`, `/api/v1/*` |
-| Pipeline (`keel-pipeline`) | `127.0.0.1:8081` | Serves demo media |
+| Media worker (`keel-core/cmd/worker`) | `127.0.0.1:8083` | `/health`, `/status`; optional Compose `media` profile |
 | Moderation (`keel-moderation`) | `127.0.0.1:8082` | `/v1/*`, `/health` |
 | Embeddings (`keel-embeddings`) | `127.0.0.1:8090` | Every endpoint requires a bearer token |
 | PostgreSQL | internal only | `pgvector/pgvector:pg16` in the app stack |
 
 The devstack Compose file is `keel-infra/devstack/apps.compose.yml`. It runs PostgreSQL, the
-embeddings service, a one-shot seed job, core, pipeline, and moderation. The web app stays on the
-host for hot reload.
+embeddings service, a one-shot seed job, core, moderation, and an optional media worker. The web app
+stays on the host for hot reload.
 
 ## Data flow
 
@@ -54,9 +53,6 @@ keel-core
   -> PostgreSQL + pgvector               (actors, channels, videos, auth, engagement, embeddings)
   -> keel-embeddings /v1/embed           (HTTP, bearer token)
   -> hash embedder fallback              (when KEELTUBE_EMBEDDINGS_URL is unset)
-
-keel-pipeline
-  -> media files                         (demo sample only)
 
 keel-moderation
   -> SQLite                              (cases, actions, appeals)
@@ -87,6 +83,9 @@ PostgreSQL image.
 - Watch telemetry: anonymous visitor cookies, deduplicated view sessions, idempotent playback
   heartbeats, impression/click events, 90-day raw retention, permanent daily aggregates, and
   creator analytics endpoints.
+- Notifications: creator-scoped notification list, unread count, mark-one/read-all, comment/reply
+  and upload published/failed producers, plus an optional internal ingest route for moderation and
+  finance events.
 - Seed: demo actor/channel/videos, optional demo account, refreshes video embeddings.
 
 ### Key locations
@@ -102,8 +101,10 @@ PostgreSQL image.
 | Studio store | `internal/store/studio.go` |
 | Analytics store | `internal/store/analytics.go` |
 | Analytics API | `internal/api/analytics.go`, `internal/api/telemetry.go` |
+| Notifications | `internal/notifications/service.go`, `internal/store/notifications.go`, `internal/api/notifications.go` |
 | Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
-| Migrations | `internal/db/migrations/0001…0009` |
+| Media worker | `cmd/worker/main.go` (separate FFmpeg process; `/health`, `/status`) |
+| Migrations | `internal/db/migrations/0001…0010` |
 | Seed | `internal/seed/seed.go`, `cmd/seed/main.go` |
 | Tests | `internal/*/*_test.go` |
 
@@ -112,17 +113,20 @@ PostgreSQL image.
 - Public: `/health`, `/api/v1/feed`, `/api/v1/explore`, `/api/v1/videos`, `/api/v1/videos/{id}`,
   `/api/v1/videos/{id}/related`, `/api/v1/shorts`, `/api/v1/search`, `/api/v1/categories`,
   `/api/v1/channels/{id}`, `/api/v1/channels/{id}/videos`, `/api/v1/demo`.
+  `/api/v1/channels/{id}` accepts a channel ID, a handle such as `@maravale`, or a bare handle.
 - Auth: `/api/v1/auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/logout`,
   `/session`, `/csrf`, `/forgot-password`, `/reset-password`.
 - Viewer state (session + CSRF): `/api/v1/me`, `/api/v1/me/subscriptions`, `/api/v1/me/feed`,
-  `/api/v1/me/library`, `/api/v1/me/history`, channel subscription, video reaction/save/view,
-  comments, comment likes.
+  `/api/v1/me/library`, `/api/v1/me/history`, `/api/v1/me/notifications`,
+  `/api/v1/me/notifications/unread-count`, notification read/read-all, channel subscription, video
+  reaction/save/view, comments, comment likes.
 - `GET /api/v1/feed` personalizes when the viewer has signals; otherwise cold start. Discovery
   results include `reason` objects (`subscription`, `category`, `because_you_watched`,
   `because_you_liked`, `because_you_saved`, `recently_watched`, `trending`, `new`, `recommended`).
 - `GET /api/v1/explore` returns personalized sections when signals exist, otherwise the editorial
   collections.
-- Studio: `/api/v1/studio/channel`, `/api/v1/studio/videos`, `/api/v1/studio/videos/{id}`,
+- Studio: `/api/v1/studio/channel`, `/api/v1/studio/videos`, `/api/v1/studio/videos/{id}` (edit
+  aggregate with `rights`, `subtitles`, and `versions`),
   `/api/v1/studio/videos/{id}/publish`, `/api/v1/studio/videos/{id}/unpublish`,
   `/api/v1/studio/videos/{id}/versions`, `/api/v1/studio/videos/{id}/subtitles`,
   `/api/v1/studio/videos/{id}/thumbnail`, `/api/v1/studio/stats`, `/api/v1/studio/uploads`,
@@ -159,6 +163,7 @@ cd keel-core
 cp .env.example .env          # fill KEELTUBE_DATABASE_URL and other values
 go run ./cmd/seed
 go run ./cmd/api
+go run ./cmd/worker          # separate process; requires KEELTUBE_MEDIA_S3_*
 
 gofmt -l .
 go vet ./...
@@ -166,8 +171,9 @@ KEELTUBE_TEST_DATABASE_URL='postgres://USER:PASSWORD@HOST:PORT/DB?sslmode=disabl
   go test -p 1 ./...
 ```
 
-Database tests require a pgvector-enabled PostgreSQL. Use `pgvector/pgvector:pg16`. Run packages
-sequentially (`-p 1`) because the test helper truncates shared tables. The Go toolchain may not be on
+The API process never starts FFmpeg workers. Run `cmd/worker` separately against the same database
+and object store. Database tests require a pgvector-enabled PostgreSQL. Use `pgvector/pgvector:pg16`.
+Run packages sequentially (`-p 1`) because the test helper truncates shared tables. The Go toolchain may not be on
 `PATH` in every environment; install or use a local Go 1.23+ toolchain rather than modifying the
 repository.
 
@@ -256,19 +262,6 @@ python3 -m venv .venv
 Known next steps: PostgreSQL persistence, signed external ledger anchor, policy bundle loader, SLA
 timers, real signal ingestion, public transparency generator. Reports belong here, not in core.
 
-## keel-pipeline
-
-Go demo media server. Serves `/health` and `/demo/sample.mp4`. Resumable upload, ffmpeg/ffprobe,
-HLS packaging, content hashes, and NATS jobs are not implemented.
-
-```sh
-cd keel-pipeline
-go run ./cmd/worker
-go test ./...
-go vet ./...
-gofmt -l .
-```
-
 ## keel-web
 
 Private React 19 + Vite + TypeScript + Tailwind v4 SPA. Read `keel-web/AGENTS.md` for frontend rules.
@@ -305,7 +298,8 @@ only until v0.2.
 ## keel-infra
 
 Private devstack. `devstack/apps.compose.yml` runs PostgreSQL (`pgvector/pgvector:pg16`), embeddings,
-seed, core, pipeline, and moderation. The web app runs on the host.
+seed, core, and moderation. The web app runs on the host. The media worker is an optional Compose
+profile (`--profile media`) and requires an S3-compatible bucket.
 
 Default embeddings mode is hash, so the stack builds quickly. The embeddings service requires
 `KEELTUBE_EMBEDDINGS_TOKEN`; the Compose healthcheck sends it. Core and seed receive the same token.
@@ -336,8 +330,7 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 ## Current limitations / likely next work
 
 - Wire `keel-web` to `keel-core`, `keel-moderation`, and `keel-embeddings`; remove the mock data seam.
-- `keel-pipeline` remains a demo media server; Creator Studio upload, transcoding, HLS, and
-  thumbnails are handled by the core media engine.
+- Media processing runs in `keel-core/cmd/worker`; the API process never starts FFmpeg workers.
 - Staff moderation portal, real signal ingestion, reports, and transparency aggregates.
 - Moderation PostgreSQL persistence and signed ledger anchor.
 - Monetization, payouts, federation, and production OIDC/social providers.
