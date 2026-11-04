@@ -13,17 +13,34 @@ separate git checkouts. Private repositories are ignored by the root `.gitignore
 | Path | Visibility | Language | Purpose | Current state |
 |---|---|---|---|---|
 | `keel-dev` (root) | public | Python/Markdown | Public demo, contribution hub, workspace boundary | Mocked creator-appeal demo; docs |
-| `keel-core` | public | Go | Identity, catalog, engagement, discovery API | PostgreSQL + pgvector; auth, catalog, engagement, discovery |
-| `keel-moderation` | public | Python/FastAPI | Signals, cases, actions, appeals, ledger | PostgreSQL workflow state + append-only JSONL ledger |
-| `keel-moderation-web` | private | React/TypeScript + Node BFF | Staff moderation portal | Cases, enforcement, appeals, actions, ledger, federation status |
-| `keel-spec` | public | YAML/JSON | Protocol, RFCs, schemas, OpenAPI | Contract source of truth |
+| `keel-core` | public | Go | Identity, catalog, engagement, discovery API | PostgreSQL + pgvector; auth, catalog, engagement, discovery, studio, federation; UAT-ready |
+| `keel-moderation` | public | Python/FastAPI | Signals, cases, actions, appeals, ledger | PostgreSQL workflow state + append-only JSONL ledger; UAT-ready |
+| `keel-moderation-web` | private | React/TypeScript + Node BFF | Staff moderation portal | Cases, enforcement, appeals, actions, ledger, federation status; UAT-ready |
+| `keel-spec` | public | YAML/JSON | Protocol, RFCs, schemas, OpenAPI | Contract source of truth; 151 OpenAPI paths validated |
 | `keel-docs` | public | Markdown | Creator and developer docs | Governance and API docs |
-| `keel-web` | private | React/TypeScript | Viewer, creator studio, creator moderation record | Fully built against local mock data; API adapters pending |
+| `keel-web` | private | React/TypeScript + Cloudflare Worker | Viewer, creator studio, creator moderation record | UI complete on local mock data; Worker BFF ready; data adapters pending |
 | `keel-embeddings` | private | Python/FastAPI | Embedding and semantic-retrieval service | Token-protected; hash and sentence-transformers backends |
 | `keel-infra` | private | Docker/Terraform | Devstack and infrastructure | Compose stack includes pgvector, core, embeddings, moderation, and an optional media worker |
 | `keel-governance` | private | Markdown | Constitution, board, finance, legal | Docs |
 | `keel-security` | private | Markdown | Threat model, audits, incident response | Docs |
 | `keel-branding` | private | Assets/Markdown | Brand system and assets | Assets/decisions |
+
+## UAT status
+
+`keel-core`, `keel-moderation`, and `keel-moderation-web` are feature-complete for UAT as a
+coordinated backend and staff-portal stack:
+
+- `keel-core`: `gofmt -l .`, `go vet ./...`, and `go test -p 1 ./...` pass against PostgreSQL +
+  pgvector.
+- `keel-moderation`: `pytest` and `ruff check app tests` pass. OIDC claims, PostgreSQL workflow
+  state, creator/staff scopes, signals, notifications, and the ledger are implemented.
+- `keel-moderation-web`: BFF tests, TypeScript typecheck, and the production build pass. The staff
+  cases, enforcement, appeals, actions, ledger, and federation surfaces are implemented.
+
+The remaining UAT blocker is `keel-web`: its UI is complete on local mock data and its Cloudflare
+Worker BFF is implemented, but the core/moderation data adapters are still pending. Production-only
+work remains: real classifier models and transparency reports, an externally anchored ledger,
+billing/settlement/payout execution, and non-core OIDC token forwarding.
 
 Do not copy private repository contents into a public repository. Do not add private repositories to
 the root git index. Run `make boundary` before pushing root changes.
@@ -36,6 +53,7 @@ the root git index. Run `make boundary` before pushing root changes.
 | Core (`keel-core`) | `127.0.0.1:8080` | `/health`, `/api/v1/*` |
 | Media worker (`keel-core/cmd/worker`) | `127.0.0.1:8083` | `/health`, `/status`; optional Compose `media` profile |
 | Moderation (`keel-moderation`) | `127.0.0.1:8082` | `/v1/*`, `/health` |
+| Staff portal (`keel-moderation-web`) | `127.0.0.1:8095` | Node BFF plus Vite dev server on `:3100` |
 | Embeddings (`keel-embeddings`) | `127.0.0.1:8090` | Every endpoint requires a bearer token |
 | PostgreSQL | internal only | `pgvector/pgvector:pg16` in the app stack |
 
@@ -46,8 +64,9 @@ stays on the host for hot reload.
 ## Data flow
 
 ```text
-keel-web (mock data today)
-  -> keel-core /api/v1/*                 (future adapter)
+keel-web (mock data today; Cloudflare Worker BFF ready)
+  -> Worker /api/*                       (forwards the viewer session cookie to core)
+  -> Worker /moderation/*                (creator-safe moderation allowlist; server-side token)
   -> keel-core /api/v1/studio/moderation/* (creator-safe gateway; no browser moderation token)
 
 keel-core
@@ -70,7 +89,8 @@ keel-moderation-web (staff portal, private)
 ```
 
 Core never makes moderation decisions. Moderation decisions never live in the creator web app. The
-staff moderation portal is not built; the creator app only reads its own record and files appeals.
+staff moderation portal is `keel-moderation-web`; the creator app only reads its own record and
+files appeals.
 
 ## keel-core
 
@@ -122,7 +142,7 @@ PostgreSQL image.
 | Creator moderation gateway | `internal/moderation/client.go`, `internal/api/moderation.go` |
 | Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
 | Media worker | `cmd/worker/main.go` (separate FFmpeg process; `/health`, `/status`) |
-| Migrations | `internal/db/migrations/0001…0017` |
+| Migrations | `internal/db/migrations/0001…0020` |
 | Seed | `internal/seed/seed.go`, `cmd/seed/main.go` |
 | Tests | `internal/*/*_test.go` |
 
@@ -329,6 +349,29 @@ transparency generator. Viewer reports reach moderation through
 `POST /v1/signals` using `KEELTUBE_SIGNAL_INGEST_TOKEN`; core validates the subject and forwards the
 report. The devstack runs `python -m app.seed` before moderation starts to create the demo record.
 
+## keel-moderation-web
+
+Private React 19 + Vite + TypeScript + Tailwind v4 staff portal with a same-origin Node BFF.
+Read `keel-moderation-web/AGENTS.md` before changing it. The moderator and appeals tokens stay on
+the server; the browser receives only a signed HttpOnly staff session cookie. Moderator and appeals
+capabilities are role-separated in both the BFF and the UI.
+
+Implemented surfaces: overview with queue counts and ledger status, cases and evidence, enforcement
+and dismissal, independent appeal decisions, actions with Statements of Reasons, ledger verification
+and export, and the optional federation panel. The BFF calls `/v1/*` on `keel-moderation`; the
+federation panel uses the core internal token.
+
+Commands:
+
+```sh
+cd keel-moderation-web
+npm ci
+npm run typecheck
+npm test
+npm run build
+npm start
+```
+
 ## keel-web
 
 Private React 19 + Vite + TypeScript + Tailwind v4 SPA. Read `keel-web/AGENTS.md` for frontend rules.
@@ -336,13 +379,19 @@ The app is fully built against local mock data. `src/data/source.ts` is the data
 with API adapters. `src/state/workspace-store.tsx` owns cross-page state and persists to
 `sessionStorage`. `src/context/auth.tsx` is a local session mock.
 
+A Cloudflare Worker BFF in `worker/` already proxies `/api/*` to core with the viewer session
+cookie and `/moderation/*` to the creator-safe moderation allowlist with a server-side token. The
+browser must call the BFF, never a backend directly, and moderation tokens must never reach the
+browser.
+
 Routes: public home, explore, watch, channel, search, shorts, library; auth sign-in/sign-up/
 verify/forgot/reset; guarded settings, studio, and `/studio/moderation` creator record. Staff
-moderation is intentionally not routed in this app.
+moderation is intentionally not routed in this app; it lives in `keel-moderation-web`.
 
-Rules that matter: no backend calls in the mock phase; never put moderation tokens in `VITE_*` or
-browser state; creator app must never expose moderator decision controls; watch-page trust record is
-owner-only; comments have one reply level; upload is a global modal; keep the versioned video editor.
+Rules that matter: the data seam remains mock-only until the adapters land; never put moderation
+tokens in `VITE_*` or browser state; creator app must never expose moderator decision controls;
+watch-page trust record is owner-only; comments have one reply level; upload is a global modal; keep
+the versioned video editor.
 
 Commands:
 
@@ -403,8 +452,8 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 - Finance is a read-only seeded demo in core (monetization, earnings, payouts); real billing,
   settlement, and payout execution are future work.
 - Non-core OIDC token forwarding.
-- Discovery: cross-encoder reranking and evaluation on top of completion and impression data.
-- Comment moderation/pin actions and view deduplication.
+- Discovery: evaluation on top of completion and impression data; production reranker deployment.
+- Production media player hardening and larger-scale federation testing.
 
 ## Quick test matrix
 

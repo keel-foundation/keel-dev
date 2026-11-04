@@ -66,9 +66,22 @@ The short version:
 4. Sign off commits with the DCO.
 5. Open a focused pull request.
 
+## UAT readiness
+
+`keel-core`, `keel-moderation`, and `keel-moderation-web` are feature-complete for UAT as a
+coordinated backend and staff-portal stack. Core passes `gofmt`, `go vet`, and `go test -p 1 ./...`
+against PostgreSQL + pgvector; moderation passes `pytest` and `ruff`; the staff portal passes its
+BFF tests, typecheck, and production build.
+
+`keel-web` is the remaining integration point. Its UI is complete against local mock data and its
+Cloudflare Worker BFF already proxies core and creator-safe moderation requests, but the data
+adapters still point at the mock source. UAT can begin when the web app reads and writes through
+the BFF.
+
 ## Workspace boundary
 
-`keel-web`, `keel-embeddings`, `keel-governance`, `keel-infra`, `keel-security`, and `keel-branding` are private repositories.
+`keel-web`, `keel-moderation-web`, `keel-embeddings`, `keel-governance`, `keel-infra`,
+`keel-security`, and `keel-branding` are private repositories.
 They are separate checkouts. When they are placed inside this working tree, this repository
 ignores them. Never copy, commit, or push their contents into `keel-dev` or any other public
 repository.
@@ -100,18 +113,20 @@ path is tracked here.
 The public demo in this repository is mocked. The KeelTube web client is fully built against a
 local data adapter: email/password sign-in, sign-up, email verification, password reset, home,
 Explore, watch page, channel pages, search, library, creator studio, and the creator moderation
-record, including trust records, cases, appeals, and a browser-verified audit ledger. The
-authentication UI also shows Google, Apple, and X provider options. Core implements social
+record, including trust records, cases, appeals, and a browser-verified audit ledger. A Cloudflare
+Worker BFF is implemented for the web client; its core and moderation data adapters are the next
+step. The authentication UI also shows Google, Apple, and X provider options. Core implements social
 OIDC/OAuth sign-in, account linking, PKCE, and single-use authorization state; the demo buttons
 still offer the demo account until provider credentials are configured in the web client. The web
 client is private while the maintainer pool is established. The core service has PostgreSQL-backed
 actors, channels, videos, subscriptions, creator uploads, FFmpeg/HLS processing in a separate
 worker, watch telemetry, analytics, notifications, viewer report ingestion, semantic search,
 playlists, channel profiles, scheduled publishing, public trust records, irreversible archived-video
-media purge, and a read-only finance demo. Moderation uses PostgreSQL workflow state with versioned
-migrations and an append-only JSONL audit ledger. A separate staff moderation portal for the Keel
-team and moderators lives in the separate private staff portal; the creator app does not expose
-moderator actions. Real payouts and content-protection fingerprinting are not implemented yet.
+media purge, ActivityPub federation, and a read-only finance demo. Moderation uses PostgreSQL
+workflow state with versioned migrations and an append-only JSONL audit ledger. The private
+`keel-moderation-web` staff portal implements the moderation queue, enforcement, independent appeal
+decisions, actions, ledger, and federation status; the creator app does not expose moderator
+actions. Real payouts and content-protection fingerprinting are not implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 

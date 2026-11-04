@@ -2,8 +2,15 @@
 
 Repository: [keel-foundation/keel-core](https://github.com/keel-foundation/keel-core)
 
-You only need `keel-core` for API, identity, channel, video, subscription, and feed work. Core now
-requires PostgreSQL; you do not need moderation, the web app, or NATS for most changes.
+You only need `keel-core` for API, identity, catalog, engagement, discovery, studio/media, and
+federation work. Core requires PostgreSQL (with `pgvector` for discovery); you do not need
+moderation, the web app, or NATS for most changes.
+
+**Status:** UAT-ready. The API covers identity and social sign-in, catalog and discovery, viewer
+engagement, creator studio and media processing, watch telemetry and analytics, notifications,
+viewer reports and public trust records, playlists, ActivityPub federation, and the creator
+moderation gateway. `gofmt`, `go vet`, and the database tests pass. The remaining integration work
+is the `keel-web` data adapter.
 
 ## Run only this module
 
@@ -36,15 +43,22 @@ Core listens on `127.0.0.1:8080` by default. The seed is idempotent and creates 
 
 ## Endpoints
 
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/health` | Liveness and database ping |
-| `GET` | `/api/v1/channels/demo` | Demo channel |
-| `GET` | `/api/v1/channels/{id}` | Channel by id |
-| `GET` | `/api/v1/videos/demo` | Demo video |
-| `GET` | `/api/v1/videos/{id}` | Video by id |
-| `GET` | `/api/v1/demo` | Demo video and channel |
-| `GET` | `/api/v1/me` | Current dev principal |
+The full contract is in `keel-spec/schemas/openapi.yaml`. Core surfaces are grouped by area:
+
+| Area | Examples |
+|---|---|
+| Health and federation | `/health`, `/.well-known/webfinger`, `/federation/*` |
+| Catalog and discovery | `/api/v1/feed`, `/api/v1/explore`, `/api/v1/videos`, `/api/v1/search`, `/api/v1/channels` |
+| Identity and sessions | `/api/v1/auth/*`, `/api/v1/me`, `/api/v1/me/sessions` |
+| Engagement | subscriptions, reactions, saves, history, comments, playlists |
+| Creator Studio | `/api/v1/studio/videos`, uploads, subtitles, analytics, monetization |
+| Creator moderation gateway | `/api/v1/studio/moderation/*` |
+| Media playback | `/api/v1/media/*` |
+| Reports and trust | `/api/v1/reports`, `/api/v1/me/reports`, `/api/v1/videos/{id}/trust` |
+| Internal services | `/internal/v1/notifications`, `/internal/v1/finance/payouts`, `/internal/v1/federation` |
+
+The demo fixtures `/api/v1/channels/demo`, `/api/v1/videos/demo`, and `/api/v1/demo` remain
+available for the public demo.
 
 ## Work on a specific area
 

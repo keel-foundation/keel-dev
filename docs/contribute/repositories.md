@@ -20,6 +20,7 @@ approval. Run `make boundary` before pushing changes from this workspace.
 | Repository | Purpose |
 |---|---|
 | [`keel-web`](https://github.com/keel-foundation/keel-web) | Viewer, creator studio, and creator moderation record. Private until the maintainer pool is established. |
+| `keel-moderation-web` | Staff moderation portal with a privileged Node BFF. Private. |
 | `keel-embeddings` | Embedding and semantic-retrieval service for feed and discovery. Private. |
 | `keel-governance` | Constitution, whitepaper, board, finance, legal. |
 | `keel-infra` | Production infrastructure, environments, runbooks, dev stack. |

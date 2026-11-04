@@ -24,9 +24,9 @@ git commit -s -m "feat: add video manifest endpoint"
 
 Do not add a CLA. Do not commit secrets, credentials, private governance text, or customer data.
 
-This repository is public. `keel-web`, `keel-governance`, `keel-infra`, `keel-security`, and
-`keel-branding` are private repositories. `keel-web` is private until the maintainer pool is
-established. Do not copy their contents here or run `git add -A` from the workspace
+This repository is public. `keel-web`, `keel-moderation-web`, `keel-embeddings`, `keel-governance`,
+`keel-infra`, `keel-security`, and `keel-branding` are private repositories. `keel-web` is private
+until the maintainer pool is established. Do not copy their contents here or run `git add -A` from the workspace
 root without running `make boundary` first.
 
 ## Which repository?
@@ -36,6 +36,7 @@ root without running `make boundary` first.
 | API, identity, channels, videos, subscriptions | `keel-core` |
 | Ingest, transcode, package, thumbnails | `keel-core` (media engine and worker) |
 | Signals, cases, policy engine, appeals, ledger | `keel-moderation` |
+| Staff moderation portal (private) | `keel-moderation-web` |
 | Viewer, creator studio, creator moderation record (private) | `keel-web` |
 | Protocol, schemas, OpenAPI, RFCs | `keel-spec` |
 | Public documentation | [`keel-docs`](docs/contribute/keel-docs.md) |
@@ -49,7 +50,7 @@ See [repositories](docs/contribute/repositories.md) for links.
 - Working on moderation or policy? Run `keel-moderation` only. Point the demo at it with `KEELTUBE_MODERATION_BASE_URL`.
 - Working on web? Run `keel-web` only. This repository is private and maintainer-only for now.
 - Working on schemas? Run the `keel-spec` validator only.
-- Media processing, federation, payouts, and production infrastructure are maintainer-only and are documented in the private `keel-infra` repository.
+- Production infrastructure, provider credentials, payout execution, and the staff moderation portal are maintainer-only. Development guidance for private services lives in `keel-infra`.
 
 ## Pull requests
 

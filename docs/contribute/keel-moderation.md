@@ -4,6 +4,11 @@ Repository: [keel-foundation/keel-moderation](https://github.com/keel-foundation
 
 This repository owns signals, cases, policy evaluation, human review, appeals, the audit ledger, and content-protection signals.
 
+**Status:** UAT-ready. Workflow state is durable in PostgreSQL with versioned migrations; SQLite
+remains an offline/test fallback. OIDC claims, role-token mode, creator/staff scoping, signal
+ingestion, creator notifications, and the append-only JSONL ledger are implemented. `pytest` and
+`ruff` pass. The private `keel-moderation-web` staff portal consumes the staff endpoints.
+
 ## Run only this module
 
 ```sh
@@ -18,14 +23,18 @@ python3 -m venv .venv
 .venv/bin/ruff check app tests
 ```
 
-You do not need core, the web app, PostgreSQL, NATS, or object storage for the current demo.
+PostgreSQL is optional for local iteration: without a database URL the service uses the SQLite
+fallback. You do not need core, the web app, NATS, or object storage to run the moderation tests.
+Set `KEELTUBE_TEST_DATABASE_URL` to also exercise PostgreSQL persistence.
 
 ## Configuration
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `KEELTUBE_LEDGER_PATH` | `data/ledger.jsonl` | Append-only ledger file |
-| `KEELTUBE_STATE_DB` | `data/state.sqlite3` | SQLite workflow state |
+| `KEELTUBE_MODERATION_DATABASE_URL` | unset | PostgreSQL workflow state; preferred |
+| `KEELTUBE_DATABASE_URL` | unset | PostgreSQL fallback when the moderation URL is unset |
+| `KEELTUBE_STATE_DB` | `data/state.sqlite3` | SQLite fallback when PostgreSQL is unset |
 | `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
 | `KEELTUBE_RATE_LIMIT` | `30` | Mutating requests per IP per minute |
 | `KEELTUBE_OIDC_ISSUER` | unset | OIDC issuer; enables OIDC mode |
@@ -41,8 +50,8 @@ tokens are distinct. Reviewer independence is enforced by the service: an appell
 their own appeal, and the original decision-maker
 cannot decide the appeal.
 
-Cases, actions, and appeals are stored in SQLite and survive a restart. The audit ledger remains
-append-only JSONL.
+Cases, actions, and appeals are stored in PostgreSQL (or SQLite when no database URL is set) and
+survive a restart. The audit ledger remains append-only JSONL.
 
 ## Connect the demo to local moderation
 

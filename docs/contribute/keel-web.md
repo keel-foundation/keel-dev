@@ -7,8 +7,11 @@ maintainer pool is established. Do not clone, fork, mirror, redistribute, or pub
 repository or its contents without maintainer approval.
 
 The repository contains the KeelTube web client: the public video site, Creator Studio, Cases &
-appeals, the global upload modal, and the versioned video editor. The source of truth for setup,
-architecture, commands, and checks is the repository's own `README.md` and `AGENTS.md`.
+appeals, the global upload modal, and the versioned video editor. The UI is complete against local
+mock data, and a Cloudflare Worker BFF proxies core and creator-safe moderation requests. The data
+adapters that replace the mock seam are the remaining UAT integration step. The staff moderation
+portal is a separate repository, `keel-moderation-web`. The source of truth for setup, architecture,
+commands, and checks is the repository's own `README.md` and `AGENTS.md`.
 
 ## Maintainer checks
 
