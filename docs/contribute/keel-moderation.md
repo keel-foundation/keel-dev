@@ -28,14 +28,17 @@ You do not need core, the web app, PostgreSQL, NATS, or object storage for the c
 | `KEELTUBE_STATE_DB` | `data/state.sqlite3` | SQLite workflow state |
 | `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
 | `KEELTUBE_RATE_LIMIT` | `30` | Mutating requests per IP per minute |
-| `KEELTUBE_DEMO_TOKEN` | unset | Legacy single-token demo mode |
-| `KEELTUBE_CREATOR_TOKEN` | unset | Creator role token for role-enforced mode |
-| `KEELTUBE_MODERATOR_TOKEN` | unset | Moderator role token for role-enforced mode |
-| `KEELTUBE_APPEALS_TOKEN` | unset | Appeals reviewer token for role-enforced mode |
+| `KEELTUBE_OIDC_ISSUER` | unset | OIDC issuer; enables OIDC mode |
+| `KEELTUBE_OIDC_AUDIENCE` | unset | Expected OIDC audience |
+| `KEELTUBE_OIDC_JWKS_URL` | issuer discovery | JWKS endpoint |
+| `KEELTUBE_OIDC_HMAC_SECRET` | unset | Shared HS256 secret for core-minted claims |
+| `KEELTUBE_CREATOR_TOKEN` | unset | Creator role token for role-token mode |
+| `KEELTUBE_MODERATOR_TOKEN` | unset | Moderator role token for role-token mode |
+| `KEELTUBE_APPEALS_TOKEN` | unset | Appeals reviewer token for role-token mode |
 
-The service supports open local mode, a legacy single-token demo mode, and role-enforced mode
-where the creator, moderator, and appeals tokens are distinct. Reviewer independence is enforced
-by the service: an appellant cannot decide their own appeal, and the original decision-maker
+The service supports OIDC claims and role-token mode where the creator, moderator, and appeals
+tokens are distinct. Reviewer independence is enforced by the service: an appellant cannot decide
+their own appeal, and the original decision-maker
 cannot decide the appeal.
 
 Cases, actions, and appeals are stored in SQLite and survive a restart. The audit ledger remains

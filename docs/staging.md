@@ -21,11 +21,12 @@ KEELTUBE_MODE=remote \
 KEELTUBE_API_BASE_URL=https://stage-api.example.org \
 KEELTUBE_MODERATION_BASE_URL=https://stage-moderation.example.org \
 KEELTUBE_OPENAPI_URL=https://stage-api.example.org/openapi.yaml \
-KEELTUBE_DEMO_TOKEN=replace-with-a-stage-demo-token \
 make demo
 ```
 
-Use the API and moderation origins, not paths ending in `/api` or `/v1`. Replace the example URLs and token with the values provided by a maintainer. Do not commit them.
+Set `KEELTUBE_OIDC_TOKEN` to a valid stage OIDC bearer token before running the command. Use the
+API and moderation origins, not paths ending in `/api` or `/v1`. Replace the example URLs and token
+with the values provided by a maintainer. Do not commit them.
 
 The demo uses these moderation endpoints:
 
@@ -61,7 +62,7 @@ Mock mode requires no backend. The demo simulates the signal, case, action, appe
 
 ## Limitations
 
-- Stage may reject the demo token or lack the demo endpoints; the UI shows the error.
+- Stage may reject the OIDC token or lack the demo endpoints; the UI shows the error.
 - The demo is not a production client. It has no real user login and no production authorization.
 - The proxy is for local development only. A production deployment needs a proper reverse proxy and authentication.
 - Do not expose the demo server to the public internet.

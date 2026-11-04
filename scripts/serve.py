@@ -18,7 +18,7 @@ MODE = "remote" if os.getenv("KEELTUBE_MODE", "mock").lower() == "remote" else "
 API_BASE = os.getenv("KEELTUBE_API_BASE_URL", "").rstrip("/")
 MOD_BASE = os.getenv("KEELTUBE_MODERATION_BASE_URL", "").rstrip("/")
 OPENAPI_URL = os.getenv("KEELTUBE_OPENAPI_URL", "")
-TOKEN = os.getenv("KEELTUBE_DEMO_TOKEN", "")
+TOKEN = os.getenv("KEELTUBE_OIDC_TOKEN", "")
 
 
 class DemoHandler(SimpleHTTPRequestHandler):

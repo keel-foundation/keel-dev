@@ -35,11 +35,12 @@ KEELTUBE_MODE=remote \
 KEELTUBE_API_BASE_URL=https://stage-api.example.org \
 KEELTUBE_MODERATION_BASE_URL=https://stage-moderation.example.org \
 KEELTUBE_OPENAPI_URL=https://stage-api.example.org/openapi.yaml \
-KEELTUBE_DEMO_TOKEN=replace-me \
 make demo
 ```
 
-The local demo server proxies `/api/*` and `/moderation/*` to those services. The token stays on the server and is never placed in browser JavaScript. See [docs/staging.md](docs/staging.md).
+Set `KEELTUBE_OIDC_TOKEN` to the stage OIDC bearer token before running the command. The local demo
+server proxies `/api/*` and `/moderation/*` to those services. The token stays on the server and is
+never placed in browser JavaScript. See [docs/staging.md](docs/staging.md).
 
 ## Contribute
 

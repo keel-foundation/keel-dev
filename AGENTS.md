@@ -47,11 +47,12 @@ stays on the host for hot reload.
 ```text
 keel-web (mock data today)
   -> keel-core /api/v1/*                 (future adapter)
-  -> keel-moderation /moderation/*       (future adapter; creator-safe endpoints only)
+  -> keel-core /api/v1/studio/moderation/* (creator-safe gateway; no browser moderation token)
 
 keel-core
   -> PostgreSQL + pgvector               (actors, channels, videos, auth, engagement, embeddings)
   -> keel-embeddings /v1/embed           (HTTP, bearer token)
+  -> keel-moderation /v1/creator/*       (HTTP, server-side OIDC-style claims)
   -> hash embedder fallback              (when KEELTUBE_EMBEDDINGS_URL is unset)
 
 keel-moderation
@@ -102,6 +103,7 @@ PostgreSQL image.
 | Analytics store | `internal/store/analytics.go` |
 | Analytics API | `internal/api/analytics.go`, `internal/api/telemetry.go` |
 | Notifications | `internal/notifications/service.go`, `internal/store/notifications.go`, `internal/api/notifications.go` |
+| Creator moderation gateway | `internal/moderation/client.go`, `internal/api/moderation.go` |
 | Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
 | Media worker | `cmd/worker/main.go` (separate FFmpeg process; `/health`, `/status`) |
 | Migrations | `internal/db/migrations/0001…0010` |
@@ -131,6 +133,12 @@ PostgreSQL image.
   `/api/v1/studio/videos/{id}/versions`, `/api/v1/studio/videos/{id}/subtitles`,
   `/api/v1/studio/videos/{id}/thumbnail`, `/api/v1/studio/stats`, `/api/v1/studio/uploads`,
   `/api/v1/studio/uploads/{id}/scans`.
+- Creator moderation gateway (session + CSRF; channel derived from the session, never from the
+  client): `/api/v1/studio/moderation/summary`, `/cases`, `/cases/{id}`, `/actions`,
+  `/actions/{id}`, `/appeals`, `/appeals/{id}`, `/ledger`, `/ledger/verify`, `/ledger/export`,
+  and `POST /actions/{id}/appeal`. Core calls `keel-moderation` with short-lived OIDC-style claims
+  (`sub`, `role`, `channel_ids`) signed by `KEELTUBE_MODERATION_CLAIMS_SECRET`; the static
+  `KEELTUBE_MODERATION_TOKEN` is the legacy fallback. Moderation verifies the claims in OIDC mode.
 - Media playback gateway: `/api/v1/media/{id}/video.mp4`, `/api/v1/media/{id}/thumbnail.jpg`,
   `/api/v1/media/{id}/captions.vtt`, `/api/v1/media/{id}/subtitles/{track_id}`,
   `/api/v1/media/{id}/hls/master.m3u8`, and HLS variants/segments.
@@ -231,9 +239,10 @@ Install `.[model]` for the real sentence-transformers runtime. The devstack defa
 ## keel-moderation
 
 Python/FastAPI. Local demo with durable SQLite workflow state and an append-only JSONL audit ledger.
-Roles: `creator`, `moderator`, `appeals`. Reviewer independence is enforced. Legacy demo read
-endpoints are unauthenticated in open local mode; do not expose to a shared network. Creator
-records are channel-scoped and require the creator role in role-enforced mode.
+Roles: `creator`, `moderator`, `appeals`, `operator`. Reviewer independence is enforced. The demo
+read endpoints `/v1/demo/state` and `/v1/ledger*` remain unauthenticated; authenticated endpoints
+require OIDC claims or all three role tokens and fail closed otherwise. Creator records are
+channel-scoped.
 
 Key endpoints: `/health`, `/v1/policies`, `/v1/demo/state`, `/v1/demo/reset`, `/v1/whoami`,
 `/v1/actions`, `/v1/actions/{id}/appeal`, `/v1/appeals/{id}/decide`, `/v1/appeals`,
@@ -241,11 +250,11 @@ Key endpoints: `/health`, `/v1/policies`, `/v1/demo/state`, `/v1/demo/reset`, `/
 `/v1/creator/appeals`, `/v1/creator/ledger`, `/v1/creator/ledger/verify`,
 `/v1/creator/ledger/export`, `/v1/ledger`, `/v1/ledger/verify`, `/v1/ledger/export`.
 
-Creator scoping uses authenticated principal channel claims. The demo token authenticator reads
-`KEELTUBE_CREATOR_CHANNEL_MAP` (default `{"creator:demo":["ch_demo"]}`); production OIDC/session
-auth must supply the same claim. Explicit `channel_id` columns on cases, actions, and appeals back
-the queries. Ledger records carry a top-level `channel_id`; creator ledger reads never use payload
-string matching.
+Creator scoping uses authenticated principal channel claims. OIDC mode reads the `channel_ids`
+claim; role-token mode reads `KEELTUBE_CREATOR_CHANNEL_MAP` (default
+`{"creator:demo":["ch_demo"]}`). Authentication is required and fails closed when unconfigured.
+Explicit `channel_id` columns on cases, actions, and appeals back the queries. Ledger records carry
+a top-level `channel_id`; creator ledger reads never use payload string matching.
 
 Commands:
 
@@ -318,14 +327,14 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 ## Security and boundary rules
 
 - Never commit `.env`, real tokens, API keys, passwords, or private repository contents.
-- `.env.example` files contain placeholders only.
+- `.env.example` files contain local development values only; never put production secrets in them.
 - Private repos are separate git repositories and are ignored by the root `.gitignore`.
 - `make boundary` must pass before pushing root changes.
 - Embeddings service: every endpoint requires the bearer token; health endpoints are not public.
 - Moderation: creator app never receives moderator tokens or decision controls. Staff portal is a
   separate privileged UI.
 - Core: no moderation decision logic; no moderation tokens in browser state.
-- Do not expose the local moderation demo or open local mode to a shared network.
+- Do not expose the unauthenticated moderation demo read endpoints to a shared network.
 
 ## Current limitations / likely next work
 
