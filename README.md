@@ -101,13 +101,17 @@ The public demo in this repository is mocked. The KeelTube web client is fully b
 local data adapter: email/password sign-in, sign-up, email verification, password reset, home,
 Explore, watch page, channel pages, search, library, creator studio, and the creator moderation
 record, including trust records, cases, appeals, and a browser-verified audit ledger. The
-authentication UI also shows Google, Apple, and X provider options; provider OAuth approval and
-configuration are pending, so those buttons offer the demo account. The web client is private
-while the maintainer pool is established. The core service has PostgreSQL-backed actors,
-channels, videos, subscriptions, creator uploads, FFmpeg/HLS processing in a separate worker,
-watch telemetry, analytics, and notifications. A separate staff moderation portal for the Keel
-team and moderators is planned; the creator app does not expose moderator actions. Federation,
-payouts, content protection, and the production staff portal are not implemented yet.
+authentication UI also shows Google, Apple, and X provider options. Core implements social
+OIDC/OAuth sign-in, account linking, PKCE, and single-use authorization state; the demo buttons
+still offer the demo account until provider credentials are configured in the web client. The web
+client is private while the maintainer pool is established. The core service has PostgreSQL-backed
+actors, channels, videos, subscriptions, creator uploads, FFmpeg/HLS processing in a separate
+worker, watch telemetry, analytics, notifications, viewer report ingestion, semantic search,
+playlists, channel profiles, scheduled publishing, public trust records, irreversible archived-video
+media purge, and a read-only finance demo. Moderation uses PostgreSQL workflow state with versioned
+migrations and an append-only JSONL audit ledger. A separate staff moderation portal for the Keel
+team and moderators lives in the separate private staff portal; the creator app does not expose
+moderator actions. Real payouts and content-protection fingerprinting are not implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 

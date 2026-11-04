@@ -14,7 +14,8 @@ separate git checkouts. Private repositories are ignored by the root `.gitignore
 |---|---|---|---|---|
 | `keel-dev` (root) | public | Python/Markdown | Public demo, contribution hub, workspace boundary | Mocked creator-appeal demo; docs |
 | `keel-core` | public | Go | Identity, catalog, engagement, discovery API | PostgreSQL + pgvector; auth, catalog, engagement, discovery |
-| `keel-moderation` | public | Python/FastAPI | Signals, cases, actions, appeals, ledger | SQLite workflow state + append-only JSONL ledger |
+| `keel-moderation` | public | Python/FastAPI | Signals, cases, actions, appeals, ledger | PostgreSQL workflow state + append-only JSONL ledger |
+| `keel-moderation-web` | private | React/TypeScript + Node BFF | Staff moderation portal | Cases, enforcement, appeals, actions, ledger, federation status |
 | `keel-spec` | public | YAML/JSON | Protocol, RFCs, schemas, OpenAPI | Contract source of truth |
 | `keel-docs` | public | Markdown | Creator and developer docs | Governance and API docs |
 | `keel-web` | private | React/TypeScript | Viewer, creator studio, creator moderation record | Fully built against local mock data; API adapters pending |
@@ -50,14 +51,22 @@ keel-web (mock data today)
   -> keel-core /api/v1/studio/moderation/* (creator-safe gateway; no browser moderation token)
 
 keel-core
-  -> PostgreSQL + pgvector               (actors, channels, videos, auth, engagement, embeddings)
+  -> PostgreSQL + pgvector               (actors, channels, videos, auth, engagement, embeddings,
+                                          creator finance demo data)
   -> keel-embeddings /v1/embed           (HTTP, bearer token)
   -> keel-moderation /v1/creator/*       (HTTP, server-side OIDC-style claims)
+  -> keel-moderation /v1/signals         (HTTP, server-side ingest token for viewer reports)
   -> hash embedder fallback              (when KEELTUBE_EMBEDDINGS_URL is unset)
 
 keel-moderation
-  -> SQLite                              (cases, actions, appeals)
+  -> PostgreSQL                          (cases, actions, appeals; SQLite offline fallback)
   -> append-only JSONL ledger            (hash chain)
+  -> keel-core /internal/v1/notifications (creator-safe moderation events)
+
+keel-moderation-web (staff portal, private)
+  -> Node BFF /api/*                      (signed HttpOnly staff session)
+  -> keel-moderation /v1/*                (moderator or appeals token, server-side only)
+  -> keel-core /internal/v1/federation    (optional internal-token federation panel)
 ```
 
 Core never makes moderation decisions. Moderation decisions never live in the creator web app. The
@@ -71,22 +80,29 @@ PostgreSQL image.
 ### Implemented
 
 - Identity: register, email verification, login/logout, session cookies, CSRF, password reset,
-  lockout, Argon2id, auth events.
-- Catalog: actors, channels, videos, feed, explore, shorts, search, categories, related videos,
-  visibility rules (removed → 410, private → 404 unless owner, unlisted by link).
+  lockout, Argon2id, auth events, and Google/Apple/X social OIDC/OAuth sign-in with PKCE and
+  account linking.
+- Catalog: actors, channels, videos, feed, explore, shorts, search, semantic search, search
+  suggestions, categories, related videos, bulk channel lookup, channel profiles, visibility rules
+  (removed → 410 with tombstone, private → 404 unless owner, unlisted by link, archived excluded).
 - Engagement: subscriptions, subscription feed, reactions, saves, watch history, library, comments,
-  one-level replies, comment likes, clear history.
+  one-level replies, comment likes, comment pin/unpin/remove, clear history, playlists/collections.
 - Discovery: video/actor embeddings in pgvector, personalized feed, personalized Explore sections
-  with reasons, cold-start trending/latest mix, diversity, actor cache invalidation.
-- Creator Studio: creator-scoped video CRUD, visibility/publish transitions, immutable versions,
-  studio stats, S3 multipart upload intents, deterministic copyright/policy scans, PostgreSQL media
-  job queue, ffmpeg HLS/MP4/thumbnail processing, private media playback gateway.
+  with reasons, cold-start trending/latest mix, diversity, actor cache invalidation, semantic
+  search, search suggestions, optional cross-encoder reranking, and interest signals from
+  comments and impression/click telemetry.
+- Creator Studio: creator-scoped video CRUD, archive/restore/delete, irreversible archived-video
+  media purge, scheduled publishing,
+  visibility/publish transitions, studio search, immutable versions, comment moderation, channel
+  profile updates, studio stats, S3 multipart upload intents, deterministic copyright/policy scans,
+  PostgreSQL media job queue, ffmpeg HLS/MP4/thumbnail processing, private media playback gateway.
 - Watch telemetry: anonymous visitor cookies, deduplicated view sessions, idempotent playback
   heartbeats, impression/click events, 90-day raw retention, permanent daily aggregates, and
   creator analytics endpoints.
-- Notifications: creator-scoped notification list, unread count, mark-one/read-all, comment/reply
-  and upload published/failed producers, plus an optional internal ingest route for moderation and
-  finance events.
+- Notifications: creator-scoped notification list, unread count, mark-one/read-all, comment/reply,
+  upload published/failed, and moderation event producers, plus an internal ingest route for
+  moderation and finance events. The ingest route derives the owner from `channel_id` when
+  `actor_id` is omitted.
 - Seed: demo actor/channel/videos, optional demo account, refreshes video embeddings.
 
 ### Key locations
@@ -106,7 +122,7 @@ PostgreSQL image.
 | Creator moderation gateway | `internal/moderation/client.go`, `internal/api/moderation.go` |
 | Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
 | Media worker | `cmd/worker/main.go` (separate FFmpeg process; `/health`, `/status`) |
-| Migrations | `internal/db/migrations/0001…0010` |
+| Migrations | `internal/db/migrations/0001…0017` |
 | Seed | `internal/seed/seed.go`, `cmd/seed/main.go` |
 | Tests | `internal/*/*_test.go` |
 
@@ -117,7 +133,8 @@ PostgreSQL image.
   `/api/v1/channels/{id}`, `/api/v1/channels/{id}/videos`, `/api/v1/demo`.
   `/api/v1/channels/{id}` accepts a channel ID, a handle such as `@maravale`, or a bare handle.
 - Auth: `/api/v1/auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/logout`,
-  `/session`, `/csrf`, `/forgot-password`, `/reset-password`.
+  `/session`, `/csrf`, `/forgot-password`, `/reset-password`, plus account password change and
+  session list/revoke endpoints under `/api/v1/me`.
 - Viewer state (session + CSRF): `/api/v1/me`, `/api/v1/me/subscriptions`, `/api/v1/me/feed`,
   `/api/v1/me/library`, `/api/v1/me/history`, `/api/v1/me/notifications`,
   `/api/v1/me/notifications/unread-count`, notification read/read-all, channel subscription, video
@@ -131,20 +148,55 @@ PostgreSQL image.
   aggregate with `rights`, `subtitles`, and `versions`),
   `/api/v1/studio/videos/{id}/publish`, `/api/v1/studio/videos/{id}/unpublish`,
   `/api/v1/studio/videos/{id}/versions`, `/api/v1/studio/videos/{id}/subtitles`,
-  `/api/v1/studio/videos/{id}/thumbnail`, `/api/v1/studio/stats`, `/api/v1/studio/uploads`,
-  `/api/v1/studio/uploads/{id}/scans`.
+  `/api/v1/studio/videos/{id}/thumbnail`, `/api/v1/studio/stats`, `/api/v1/studio/comments`,
+  `/api/v1/studio/uploads` (list/create), `/api/v1/studio/uploads/{id}/scans`,
+  `/api/v1/studio/monetization`, `/api/v1/studio/earnings`, `/api/v1/studio/payouts`.
 - Creator moderation gateway (session + CSRF; channel derived from the session, never from the
   client): `/api/v1/studio/moderation/summary`, `/cases`, `/cases/{id}`, `/actions`,
   `/actions/{id}`, `/appeals`, `/appeals/{id}`, `/ledger`, `/ledger/verify`, `/ledger/export`,
-  and `POST /actions/{id}/appeal`. Core calls `keel-moderation` with short-lived OIDC-style claims
-  (`sub`, `role`, `channel_ids`) signed by `KEELTUBE_MODERATION_CLAIMS_SECRET`; the static
-  `KEELTUBE_MODERATION_TOKEN` is the legacy fallback. Moderation verifies the claims in OIDC mode.
+  and `POST /actions/{id}/appeal`. Cases and actions accept a `video_id` filter. Core calls
+  `keel-moderation` with short-lived OIDC-style claims (`sub`, `role`, `channel_ids`) signed by
+  `KEELTUBE_MODERATION_CLAIMS_SECRET`; the static `KEELTUBE_MODERATION_TOKEN` is the legacy
+  fallback. Moderation verifies the claims in OIDC mode. The appeal write path is channel-scoped and
+  rejects cross-channel action IDs.
 - Media playback gateway: `/api/v1/media/{id}/video.mp4`, `/api/v1/media/{id}/thumbnail.jpg`,
   `/api/v1/media/{id}/captions.vtt`, `/api/v1/media/{id}/subtitles/{track_id}`,
   `/api/v1/media/{id}/hls/master.m3u8`, and HLS variants/segments.
 - Analytics: `/api/v1/videos/{id}/view`, `/api/v1/videos/{id}/view/progress`,
   `/api/v1/telemetry/events`, `/api/v1/studio/analytics/summary`,
   `/api/v1/studio/analytics/timeseries`, `/api/v1/studio/videos/{id}/analytics`.
+- Reports: `POST /api/v1/reports` persists a report, forwards it to `keel-moderation` as a signal
+  using `KEELTUBE_MODERATION_SIGNAL_TOKEN`, and links the moderation case/signal. Reporters can read
+  their own reports with `GET /api/v1/reports/{id}` and `GET /api/v1/me/reports`.
+- Search: `GET /api/v1/search` accepts `channel_id`; `GET /api/v1/search/semantic` uses pgvector
+  embeddings and an optional cross-encoder reranker; `GET /api/v1/search/suggestions` returns
+  videos, shorts, and channels.
+- Playlists: `/api/v1/me/playlists` and `/api/v1/playlists/{id}` support playlists and collections,
+  including add/remove video items.
+- Public trust record: `GET /api/v1/videos/{id}/trust` proxies moderation's public video record.
+- Removed videos return `410` with a canonical `video` tombstone (playback omitted) so clients can
+  render the removal record without a second request. Private videos remain `404` unless owner.
+
+### Federation
+
+Core exposes a PeerTube-compatible ActivityPub v0.1 surface when
+`KEELTUBE_FEDERATION_DOMAIN` is set:
+
+- `GET /.well-known/webfinger` resolves `acct:handle@domain` to a local actor.
+- `GET /federation/actors/{id}` returns an ActivityPub `Group` actor with inbox, outbox,
+  followers, following, and an RSA public key.
+- `GET /federation/actors/{id}/outbox` publishes local public videos as `Create` activities.
+- `POST /federation/actors/{id}/inbox` verifies HTTP Signatures and handles Follow, Undo, Accept,
+  Reject, Create/Update Video, Delete, and Flag. Unsolicited video activities are ignored unless the
+  instance follows the sender.
+- `GET /federation/videos/{id}` returns a PeerTube-compatible Video object with `keeltube:*`
+  extensions for content hashes and policy versions.
+- `GET /federation/policy` publishes a signed instance policy document.
+
+Remote follows, peers, inbox idempotency, and signed outbound deliveries are stored in PostgreSQL.
+Remote actors and videos use deterministic `*_remote_*` identifiers in the catalog. Delivery uses
+RSA-SHA256 HTTP Signatures with a `Digest` header and retries with exponential backoff. Internal
+operator routes under `/internal/v1/federation` require `KEELTUBE_INTERNAL_TOKEN`.
 
 ### Discovery details
 
@@ -238,23 +290,27 @@ Install `.[model]` for the real sentence-transformers runtime. The devstack defa
 
 ## keel-moderation
 
-Python/FastAPI. Local demo with durable SQLite workflow state and an append-only JSONL audit ledger.
+Python/FastAPI. Local demo with durable PostgreSQL workflow state (versioned migrations) and an
+append-only JSONL audit ledger. SQLite remains an explicit offline/test fallback.
 Roles: `creator`, `moderator`, `appeals`, `operator`. Reviewer independence is enforced. The demo
 read endpoints `/v1/demo/state` and `/v1/ledger*` remain unauthenticated; authenticated endpoints
 require OIDC claims or all three role tokens and fail closed otherwise. Creator records are
 channel-scoped.
 
 Key endpoints: `/health`, `/v1/policies`, `/v1/demo/state`, `/v1/demo/reset`, `/v1/whoami`,
-`/v1/actions`, `/v1/actions/{id}/appeal`, `/v1/appeals/{id}/decide`, `/v1/appeals`,
-`/v1/appeals/{id}`, `/v1/creator/summary`, `/v1/creator/cases`, `/v1/creator/actions`,
-`/v1/creator/appeals`, `/v1/creator/ledger`, `/v1/creator/ledger/verify`,
-`/v1/creator/ledger/export`, `/v1/ledger`, `/v1/ledger/verify`, `/v1/ledger/export`.
+`/v1/signals`, `/v1/public/videos/{video_id}/record`, `/v1/actions`,
+`/v1/actions/{id}/appeal`, `/v1/appeals/{id}/decide`,
+`/v1/appeals`, `/v1/appeals/{id}`, `/v1/creator/summary`, `/v1/creator/cases`,
+`/v1/creator/actions`, `/v1/creator/appeals`, `/v1/creator/ledger`,
+`/v1/creator/ledger/verify`, `/v1/creator/ledger/export`, `/v1/ledger`, `/v1/ledger/verify`,
+`/v1/ledger/export`. Creator cases and actions accept `video_id`.
 
 Creator scoping uses authenticated principal channel claims. OIDC mode reads the `channel_ids`
 claim; role-token mode reads `KEELTUBE_CREATOR_CHANNEL_MAP` (default
 `{"creator:demo":["ch_demo"]}`). Authentication is required and fails closed when unconfigured.
 Explicit `channel_id` columns on cases, actions, and appeals back the queries. Ledger records carry
-a top-level `channel_id`; creator ledger reads never use payload string matching.
+`channel_id` inside `payload`; creator ledger reads filter on that field and never use string
+matching against case, action, or appeal IDs.
 
 Commands:
 
@@ -268,8 +324,10 @@ python3 -m venv .venv
 . .venv/bin/ruff check app tests
 ```
 
-Known next steps: PostgreSQL persistence, signed external ledger anchor, policy bundle loader, SLA
-timers, real signal ingestion, public transparency generator. Reports belong here, not in core.
+Known next steps: signed external ledger anchor, policy bundle loader, SLA timers, public
+transparency generator. Viewer reports reach moderation through
+`POST /v1/signals` using `KEELTUBE_SIGNAL_INGEST_TOKEN`; core validates the subject and forwards the
+report. The devstack runs `python -m app.seed` before moderation starts to create the demo record.
 
 ## keel-web
 
@@ -340,9 +398,11 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 
 - Wire `keel-web` to `keel-core`, `keel-moderation`, and `keel-embeddings`; remove the mock data seam.
 - Media processing runs in `keel-core/cmd/worker`; the API process never starts FFmpeg workers.
-- Staff moderation portal, real signal ingestion, reports, and transparency aggregates.
-- Moderation PostgreSQL persistence and signed ledger anchor.
-- Monetization, payouts, federation, and production OIDC/social providers.
+- Production classifier models and public transparency aggregates.
+- Signed external moderation ledger anchor.
+- Finance is a read-only seeded demo in core (monetization, earnings, payouts); real billing,
+  settlement, and payout execution are future work.
+- Non-core OIDC token forwarding.
 - Discovery: cross-encoder reranking and evaluation on top of completion and impression data.
 - Comment moderation/pin actions and view deduplication.
 
@@ -354,6 +414,7 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 | Core | `go test -p 1 ./...` | Go 1.23+, pgvector PostgreSQL, `KEELTUBE_TEST_DATABASE_URL` |
 | Embeddings | `pytest -q` | Python 3.11+, dev lock; no model download for unit tests |
 | Moderation | `pytest -q` | Python 3.9+, dev lock |
-| Pipeline | `go test ./...` | Go 1.23+ |
+| Worker | `go test ./cmd/worker` | Go 1.23+ |
 | Web | `npm test`, `npm run test:e2e` | Node 22+ |
+| Moderation portal | `npm test`, `npm run typecheck`, `npm run build` | Node 22+ |
 | Infra | `docker compose … config` | Docker Compose |
