@@ -73,10 +73,19 @@ coordinated backend and staff-portal stack. Core passes `gofmt`, `go vet`, and `
 against PostgreSQL + pgvector; moderation passes `pytest` and `ruff`; the staff portal passes its
 BFF tests, typecheck, and production build.
 
+`keel-moderation` now includes a bundled model-based classifier, optional transformer and HTTP
+classifier adapters, and a public transparency report generated from workflow state and the audit
+ledger. The devstack includes MinIO for local media storage and a cross-service acceptance harness
+(`keel-infra/maintainers/scripts/acceptance.sh`).
+
 `keel-web` is the remaining integration point. Its UI is complete against local mock data and its
 Cloudflare Worker BFF already proxies core and creator-safe moderation requests, but the data
 adapters still point at the mock source. UAT can begin when the web app reads and writes through
 the BFF.
+
+Production-only work still includes calibrated production classifier models, an externally anchored
+moderation ledger, server-signed creator export bundles, viewer billing and automatic settlement
+scheduling, and non-core OIDC token forwarding.
 
 ## Workspace boundary
 

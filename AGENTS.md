@@ -33,14 +33,17 @@ coordinated backend and staff-portal stack:
 - `keel-core`: `gofmt -l .`, `go vet ./...`, and `go test -p 1 ./...` pass against PostgreSQL +
   pgvector.
 - `keel-moderation`: `pytest` and `ruff check app tests` pass. OIDC claims, PostgreSQL workflow
-  state, creator/staff scopes, signals, notifications, and the ledger are implemented.
+  state, creator/staff scopes, signals, notifications, the ledger, a bundled model-based classifier,
+  optional transformer/HTTP classifiers, and the public transparency report are implemented.
 - `keel-moderation-web`: BFF tests, TypeScript typecheck, and the production build pass. The staff
   cases, enforcement, appeals, actions, ledger, and federation surfaces are implemented.
 
-The remaining UAT blocker is `keel-web`: its UI is complete on local mock data and its Cloudflare
-Worker BFF is implemented, but the core/moderation data adapters are still pending. Production-only
-work remains: real classifier models and transparency reports, an externally anchored ledger,
-viewer billing and automatic settlement scheduling, and non-core OIDC token forwarding.
+The remaining UAT integration point is `keel-web`: its UI is complete on local mock data and its
+Cloudflare Worker BFF is implemented, but the core/moderation data adapters are still pending. The
+cross-service acceptance harness (`keel-infra/maintainers/scripts/acceptance.sh`) exercises core,
+moderation, embeddings, MinIO, and the worker. Production-only work remains: calibrated production
+classifier models, an externally anchored ledger, server-signed creator export bundles, viewer
+billing and automatic settlement scheduling, and non-core OIDC token forwarding.
 
 Do not copy private repository contents into a public repository. Do not add private repositories to
 the root git index. Run `make boundary` before pushing root changes.
@@ -56,10 +59,12 @@ the root git index. Run `make boundary` before pushing root changes.
 | Staff portal (`keel-moderation-web`) | `127.0.0.1:8095` | Node BFF plus Vite dev server on `:3100` |
 | Embeddings (`keel-embeddings`) | `127.0.0.1:8090` | Every endpoint requires a bearer token |
 | PostgreSQL | internal only | `pgvector/pgvector:pg16` in the app stack |
+| MinIO (`keel-infra` devstack) | `127.0.0.1:9000` | Private S3 bucket for uploads/playback; console `:9001` |
 
-The devstack Compose file is `keel-infra/devstack/apps.compose.yml`. It runs PostgreSQL, the
-embeddings service, a one-shot seed job, core, moderation, and an optional media worker. The web app
-stays on the host for hot reload.
+The devstack Compose file is `keel-infra/devstack/apps.compose.yml`. It runs PostgreSQL, MinIO
+(with a private bucket), the embeddings service, a one-shot seed job, core, moderation, and an
+optional media worker. The web app stays on the host for hot reload. Production uses Cloudflare R2
+(or another private S3-compatible store).
 
 ## Data flow
 
@@ -345,8 +350,9 @@ python3 -m venv .venv
 . .venv/bin/ruff check app tests
 ```
 
-Known next steps: signed external ledger anchor, policy bundle loader, SLA timers, public
-transparency generator. Viewer reports reach moderation through
+Known next steps: signed external ledger anchor, policy bundle loader, SLA timers, calibrated
+production classifier models, and signed/archived transparency artifacts. Viewer reports reach
+moderation through
 `POST /v1/signals` using `KEELTUBE_SIGNAL_INGEST_TOKEN`; core validates the subject and forwards the
 report. The devstack runs `python -m app.seed` before moderation starts to create the demo record.
 
@@ -448,7 +454,8 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 
 - Wire `keel-web` to `keel-core`, `keel-moderation`, and `keel-embeddings`; remove the mock data seam.
 - Media processing runs in `keel-core/cmd/worker`; the API process never starts FFmpeg workers.
-- Production classifier models and public transparency aggregates.
+- Deploy and calibrate a production transformer classifier; the bundled model and public
+  transparency endpoint are implemented. Add signed/archived transparency artifacts.
 - Signed external moderation ledger anchor.
 - Stripe Connect onboarding and manual settlement are implemented in core. Viewer billing,
   subscriptions, tax handling, and automatic payout scheduling are future work.
