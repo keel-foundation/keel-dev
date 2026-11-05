@@ -16,7 +16,7 @@ separate git checkouts. Private repositories are ignored by the root `.gitignore
 | `keel-core` | public | Go | Identity, catalog, engagement, discovery API | PostgreSQL + pgvector; auth, catalog, engagement, discovery, studio, federation; UAT-ready |
 | `keel-moderation` | public | Python/FastAPI | Signals, cases, actions, appeals, ledger | PostgreSQL workflow state + append-only JSONL ledger; UAT-ready |
 | `keel-moderation-web` | private | React/TypeScript + Node BFF | Staff moderation portal | Cases, enforcement, appeals, actions, ledger, federation status; UAT-ready |
-| `keel-spec` | public | YAML/JSON | Protocol, RFCs, schemas, OpenAPI | Contract source of truth; 151 OpenAPI paths validated |
+| `keel-spec` | public | YAML/JSON | Protocol, RFCs, schemas, OpenAPI | Contract source of truth; 156 OpenAPI paths validated |
 | `keel-docs` | public | Markdown | Creator and developer docs | Governance and API docs |
 | `keel-web` | private | React/TypeScript + Cloudflare Worker | Viewer, creator studio, creator moderation record | UI complete on local mock data; Worker BFF ready; data adapters pending |
 | `keel-embeddings` | private | Python/FastAPI | Embedding and semantic-retrieval service | Token-protected; hash and sentence-transformers backends |
@@ -40,7 +40,7 @@ coordinated backend and staff-portal stack:
 The remaining UAT blocker is `keel-web`: its UI is complete on local mock data and its Cloudflare
 Worker BFF is implemented, but the core/moderation data adapters are still pending. Production-only
 work remains: real classifier models and transparency reports, an externally anchored ledger,
-billing/settlement/payout execution, and non-core OIDC token forwarding.
+viewer billing and automatic settlement scheduling, and non-core OIDC token forwarding.
 
 Do not copy private repository contents into a public repository. Do not add private repositories to
 the root git index. Run `make boundary` before pushing root changes.
@@ -71,7 +71,7 @@ keel-web (mock data today; Cloudflare Worker BFF ready)
 
 keel-core
   -> PostgreSQL + pgvector               (actors, channels, videos, auth, engagement, embeddings,
-                                          creator finance demo data)
+                                          creator finance billing data)
   -> keel-embeddings /v1/embed           (HTTP, bearer token)
   -> keel-moderation /v1/creator/*       (HTTP, server-side OIDC-style claims)
   -> keel-moderation /v1/signals         (HTTP, server-side ingest token for viewer reports)
@@ -140,9 +140,10 @@ PostgreSQL image.
 | Analytics API | `internal/api/analytics.go`, `internal/api/telemetry.go` |
 | Notifications | `internal/notifications/service.go`, `internal/store/notifications.go`, `internal/api/notifications.go` |
 | Creator moderation gateway | `internal/moderation/client.go`, `internal/api/moderation.go` |
+| Stripe billing/settlement | `internal/billing/*`, `internal/api/billing.go`, `internal/store/billing.go` |
 | Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
 | Media worker | `cmd/worker/main.go` (separate FFmpeg process; `/health`, `/status`) |
-| Migrations | `internal/db/migrations/0001…0020` |
+| Migrations | `internal/db/migrations/0001…0022` |
 | Seed | `internal/seed/seed.go`, `cmd/seed/main.go` |
 | Tests | `internal/*/*_test.go` |
 
@@ -449,8 +450,8 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 - Media processing runs in `keel-core/cmd/worker`; the API process never starts FFmpeg workers.
 - Production classifier models and public transparency aggregates.
 - Signed external moderation ledger anchor.
-- Finance is a read-only seeded demo in core (monetization, earnings, payouts); real billing,
-  settlement, and payout execution are future work.
+- Stripe Connect onboarding and manual settlement are implemented in core. Viewer billing,
+  subscriptions, tax handling, and automatic payout scheduling are future work.
 - Non-core OIDC token forwarding.
 - Discovery: evaluation on top of completion and impression data; production reranker deployment.
 - Production media player hardening and larger-scale federation testing.

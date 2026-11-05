@@ -122,11 +122,12 @@ client is private while the maintainer pool is established. The core service has
 actors, channels, videos, subscriptions, creator uploads, FFmpeg/HLS processing in a separate
 worker, watch telemetry, analytics, notifications, viewer report ingestion, semantic search,
 playlists, channel profiles, scheduled publishing, public trust records, irreversible archived-video
-media purge, ActivityPub federation, and a read-only finance demo. Moderation uses PostgreSQL
+media purge, ActivityPub federation, Stripe Connect creator onboarding and settlement, and a
+read-only finance view. Moderation uses PostgreSQL
 workflow state with versioned migrations and an append-only JSONL audit ledger. The private
 `keel-moderation-web` staff portal implements the moderation queue, enforcement, independent appeal
 decisions, actions, ledger, and federation status; the creator app does not expose moderator
-actions. Real payouts and content-protection fingerprinting are not implemented yet.
+actions. Viewer billing and content-protection fingerprinting are not implemented yet.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 

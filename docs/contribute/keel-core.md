@@ -8,8 +8,8 @@ moderation, the web app, or NATS for most changes.
 
 **Status:** UAT-ready. The API covers identity and social sign-in, catalog and discovery, viewer
 engagement, creator studio and media processing, watch telemetry and analytics, notifications,
-viewer reports and public trust records, playlists, ActivityPub federation, and the creator
-moderation gateway. `gofmt`, `go vet`, and the database tests pass. The remaining integration work
+viewer reports and public trust records, playlists, ActivityPub federation, the creator moderation
+gateway, and Stripe Connect billing/settlement. `gofmt`, `go vet`, and the database tests pass. The remaining integration work
 is the `keel-web` data adapter.
 
 ## Run only this module
@@ -52,10 +52,11 @@ The full contract is in `keel-spec/schemas/openapi.yaml`. Core surfaces are grou
 | Identity and sessions | `/api/v1/auth/*`, `/api/v1/me`, `/api/v1/me/sessions` |
 | Engagement | subscriptions, reactions, saves, history, comments, playlists |
 | Creator Studio | `/api/v1/studio/videos`, uploads, subtitles, analytics, monetization |
+| Billing and settlement | `/api/v1/studio/billing/*`, `/internal/v1/billing/settlements`, `/webhooks/stripe` |
 | Creator moderation gateway | `/api/v1/studio/moderation/*` |
 | Media playback | `/api/v1/media/*` |
 | Reports and trust | `/api/v1/reports`, `/api/v1/me/reports`, `/api/v1/videos/{id}/trust` |
-| Internal services | `/internal/v1/notifications`, `/internal/v1/finance/payouts`, `/internal/v1/federation` |
+| Internal services | `/internal/v1/notifications`, `/internal/v1/finance/payouts`, `/internal/v1/billing/settlements`, `/internal/v1/federation` |
 
 The demo fixtures `/api/v1/channels/demo`, `/api/v1/videos/demo`, and `/api/v1/demo` remain
 available for the public demo.
