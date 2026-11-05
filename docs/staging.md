@@ -38,7 +38,8 @@ The demo uses these moderation endpoints:
 - `GET /v1/ledger/verify`
 - `GET /v1/ledger/export?format=jsonl`
 
-It uses `GET /api/v1/videos/demo` from core for the video metadata.
+It loads a public video from core: set `KEELTUBE_DEMO_VIDEO_ID` (or `demoVideoId` in
+`demo/config.js`) to pin one, otherwise the first item from `GET /api/v1/feed` is used.
 
 ## OpenAPI
 

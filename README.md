@@ -66,12 +66,12 @@ The short version:
 4. Sign off commits with the DCO.
 5. Open a focused pull request.
 
-## UAT readiness
+## Production readiness
 
-`keel-core`, `keel-moderation`, and `keel-moderation-web` are feature-complete for UAT as a
-coordinated backend and staff-portal stack. Core passes `gofmt`, `go vet`, and `go test -p 1 ./...`
-against PostgreSQL + pgvector; moderation passes `pytest` and `ruff`; the staff portal passes its
-BFF tests, typecheck, and production build.
+`keel-core`, `keel-moderation`, and `keel-moderation-web` form the production stack. Core has no
+demo routes, fixtures, seed command, demo defaults, or dev auth fallback; it passes `gofmt`,
+`go vet`, and `go test -p 1 ./...` against PostgreSQL + pgvector. Moderation passes `pytest` and
+`ruff`; the staff portal passes its BFF tests, typecheck, and production build.
 
 `keel-moderation` now includes a bundled model-based classifier, optional transformer and HTTP
 classifier adapters, and a public transparency report generated from workflow state and the audit
@@ -79,13 +79,13 @@ ledger. The devstack includes MinIO for local media storage and a cross-service 
 (`keel-infra/maintainers/scripts/acceptance.sh`).
 
 `keel-web` is the remaining integration point. Its UI is complete against local mock data and its
-Cloudflare Worker BFF already proxies core and creator-safe moderation requests, but the data
-adapters still point at the mock source. UAT can begin when the web app reads and writes through
-the BFF.
+Cloudflare Worker BFF already proxies core and creator-safe moderation requests. Production wiring
+can begin immediately against the cleaned core API.
 
-Production-only work still includes calibrated production classifier models, an externally anchored
-moderation ledger, server-signed creator export bundles, viewer billing and automatic settlement
-scheduling, and non-core OIDC token forwarding.
+Viewer memberships, Stripe Tax handling, invoice receipts, and automatic monthly creator
+settlement are implemented. Production-only work still includes deploying a calibrated transformer
+classifier, an externally anchored moderation ledger, server-signed creator export bundles,
+content-protection fingerprinting, and non-core OIDC token forwarding.
 
 ## Workspace boundary
 
@@ -136,7 +136,7 @@ read-only finance view. Moderation uses PostgreSQL
 workflow state with versioned migrations and an append-only JSONL audit ledger. The private
 `keel-moderation-web` staff portal implements the moderation queue, enforcement, independent appeal
 decisions, actions, ledger, and federation status; the creator app does not expose moderator
-actions. Viewer billing and content-protection fingerprinting are not implemented yet.
+actions. Viewer memberships, tax handling, and automatic settlement are implemented; content-protection fingerprinting is not.
 
 The demo is local-only. Do not expose it to the public internet without adding real authentication and a reverse proxy.
 

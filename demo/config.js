@@ -3,5 +3,6 @@ window.KEELTUBE_CONFIG = {
   apiBaseUrl: "/api",
   moderationBaseUrl: "/moderation",
   openapiUrl: "",
+  demoVideoId: "",
   configured: true
 };

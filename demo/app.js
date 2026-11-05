@@ -643,7 +643,14 @@ const remoteBackend = {
     return { filename: "ledger.jsonl", text: await response.text() };
   },
   async getVideo() {
-    return request(API_BASE, "/v1/videos/demo");
+    const configured = String(window.KEELTUBE_CONFIG.demoVideoId || "").trim();
+    if (configured) {
+      return request(API_BASE, `/v1/videos/${encodeURIComponent(configured)}`);
+    }
+    const feed = await request(API_BASE, "/v1/feed?limit=1");
+    const video = Array.isArray(feed.items) ? feed.items[0] : null;
+    if (!video) throw new Error("No public videos are available in this instance.");
+    return video;
   }
 };
 
@@ -656,7 +663,7 @@ elements.reset.addEventListener("click", () => {
 elements.issue.addEventListener("click", () => {
   void mutate(() =>
     adapter.createAction({
-      video_id: lastVideo.id || "vid_demo_001",
+      video_id: lastVideo.id,
       policy_clause: "spam.mass_production",
       reason:
         "Demo: an automated classifier flagged an original documentary as mass-produced spam.",

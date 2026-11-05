@@ -13,37 +13,40 @@ separate git checkouts. Private repositories are ignored by the root `.gitignore
 | Path | Visibility | Language | Purpose | Current state |
 |---|---|---|---|---|
 | `keel-dev` (root) | public | Python/Markdown | Public demo, contribution hub, workspace boundary | Mocked creator-appeal demo; docs |
-| `keel-core` | public | Go | Identity, catalog, engagement, discovery API | PostgreSQL + pgvector; auth, catalog, engagement, discovery, studio, federation; UAT-ready |
+| `keel-core` | public | Go | Identity, catalog, engagement, discovery API | PostgreSQL + pgvector; production-oriented; no demo routes, fixtures, seed, or dev auth |
 | `keel-moderation` | public | Python/FastAPI | Signals, cases, actions, appeals, ledger | PostgreSQL workflow state + append-only JSONL ledger; UAT-ready |
 | `keel-moderation-web` | private | React/TypeScript + Node BFF | Staff moderation portal | Cases, enforcement, appeals, actions, ledger, federation status; UAT-ready |
 | `keel-spec` | public | YAML/JSON | Protocol, RFCs, schemas, OpenAPI | Contract source of truth; 156 OpenAPI paths validated |
 | `keel-docs` | public | Markdown | Creator and developer docs | Governance and API docs |
-| `keel-web` | private | React/TypeScript + Cloudflare Worker | Viewer, creator studio, creator moderation record | UI complete on local mock data; Worker BFF ready; data adapters pending |
+| `keel-web` | private | React/TypeScript + Cloudflare Worker | Viewer, creator studio, creator moderation record | UI wired to core through the Worker BFF; `VITE_DATA_SOURCE=mock` keeps offline fixtures |
 | `keel-embeddings` | private | Python/FastAPI | Embedding and semantic-retrieval service | Token-protected; hash and sentence-transformers backends |
 | `keel-infra` | private | Docker/Terraform | Devstack and infrastructure | Compose stack includes pgvector, core, embeddings, moderation, and an optional media worker |
 | `keel-governance` | private | Markdown | Constitution, board, finance, legal | Docs |
 | `keel-security` | private | Markdown | Threat model, audits, incident response | Docs |
 | `keel-branding` | private | Assets/Markdown | Brand system and assets | Assets/decisions |
 
-## UAT status
+## Production status
 
-`keel-core`, `keel-moderation`, and `keel-moderation-web` are feature-complete for UAT as a
-coordinated backend and staff-portal stack:
+`keel-core`, `keel-moderation`, and `keel-moderation-web` are the production stack:
 
-- `keel-core`: `gofmt -l .`, `go vet ./...`, and `go test -p 1 ./...` pass against PostgreSQL +
-  pgvector.
+- `keel-core`: demo routes, fixtures, the seed command, demo defaults, and dev auth are removed;
+  `gofmt -l .`, `go vet ./...`, and `go test -p 1 ./...` pass against PostgreSQL + pgvector.
 - `keel-moderation`: `pytest` and `ruff check app tests` pass. OIDC claims, PostgreSQL workflow
   state, creator/staff scopes, signals, notifications, the ledger, a bundled model-based classifier,
-  optional transformer/HTTP classifiers, and the public transparency report are implemented.
+  optional transformer/HTTP classifiers, classifier calibration reporting, and the public
+  transparency report are implemented.
 - `keel-moderation-web`: BFF tests, TypeScript typecheck, and the production build pass. The staff
   cases, enforcement, appeals, actions, ledger, and federation surfaces are implemented.
 
-The remaining UAT integration point is `keel-web`: its UI is complete on local mock data and its
-Cloudflare Worker BFF is implemented, but the core/moderation data adapters are still pending. The
+`keel-web` now has typed adapters for catalog, discovery, engagement, comments, notifications,
+uploads, the media engine, analytics, finance, auth, reports, and the creator moderation gateway.
+It calls the same-origin Cloudflare Worker BFF and keeps a mock adapter behind
+`VITE_DATA_SOURCE=mock` for offline UI work and the Playwright suite. The
 cross-service acceptance harness (`keel-infra/maintainers/scripts/acceptance.sh`) exercises core,
-moderation, embeddings, MinIO, and the worker. Production-only work remains: calibrated production
-classifier models, an externally anchored ledger, server-signed creator export bundles, viewer
-billing and automatic settlement scheduling, and non-core OIDC token forwarding.
+moderation, embeddings, MinIO, and the worker. Viewer memberships, Stripe Tax, invoice receipts, and
+automatic monthly settlement are implemented. Production-only work remains: deploying a calibrated
+transformer classifier, an externally anchored ledger, server-signed creator export bundles, and
+non-core OIDC token forwarding.
 
 Do not copy private repository contents into a public repository. Do not add private repositories to
 the root git index. Run `make boundary` before pushing root changes.
@@ -62,15 +65,15 @@ the root git index. Run `make boundary` before pushing root changes.
 | MinIO (`keel-infra` devstack) | `127.0.0.1:9000` | Private S3 bucket for uploads/playback; console `:9001` |
 
 The devstack Compose file is `keel-infra/devstack/apps.compose.yml`. It runs PostgreSQL, MinIO
-(with a private bucket), the embeddings service, a one-shot seed job, core, moderation, and an
+(with a private bucket), the embeddings service, a one-shot bootstrap job, core, moderation, and an
 optional media worker. The web app stays on the host for hot reload. Production uses Cloudflare R2
 (or another private S3-compatible store).
 
 ## Data flow
 
 ```text
-keel-web (mock data today; Cloudflare Worker BFF ready)
-  -> Worker /api/*                       (forwards the viewer session cookie to core)
+keel-web (API mode through the Worker BFF; VITE_DATA_SOURCE=mock for offline fixtures)
+  -> Worker /api/*                       (forwards the viewer session cookie to core; adapters use this)
   -> Worker /moderation/*                (creator-safe moderation allowlist; server-side token)
   -> keel-core /api/v1/studio/moderation/* (creator-safe gateway; no browser moderation token)
 
@@ -128,7 +131,7 @@ PostgreSQL image.
   upload published/failed, and moderation event producers, plus an internal ingest route for
   moderation and finance events. The ingest route derives the owner from `channel_id` when
   `actor_id` is omitted.
-- Seed: demo actor/channel/videos, optional demo account, refreshes video embeddings.
+- Bootstrap: one-time verified creator account and channel; no catalog or moderation fixtures.
 
 ### Key locations
 
@@ -149,14 +152,14 @@ PostgreSQL image.
 | Media engine | `internal/media/*` (S3, scanner, ffmpeg processor, job worker) |
 | Media worker | `cmd/worker/main.go` (separate FFmpeg process; `/health`, `/status`) |
 | Migrations | `internal/db/migrations/0001…0022` |
-| Seed | `internal/seed/seed.go`, `cmd/seed/main.go` |
+| Bootstrap | `internal/bootstrap/bootstrap.go`, `cmd/bootstrap/main.go` |
 | Tests | `internal/*/*_test.go` |
 
 ### Core API surface
 
 - Public: `/health`, `/api/v1/feed`, `/api/v1/explore`, `/api/v1/videos`, `/api/v1/videos/{id}`,
   `/api/v1/videos/{id}/related`, `/api/v1/shorts`, `/api/v1/search`, `/api/v1/categories`,
-  `/api/v1/channels/{id}`, `/api/v1/channels/{id}/videos`, `/api/v1/demo`.
+  `/api/v1/channels/{id}`, `/api/v1/channels/{id}/videos`.
   `/api/v1/channels/{id}` accepts a channel ID, a handle such as `@maravale`, or a bare handle.
 - Auth: `/api/v1/auth/register`, `/verify-email`, `/resend-verification`, `/login`, `/logout`,
   `/session`, `/csrf`, `/forgot-password`, `/reset-password`, plus account password change and
@@ -233,7 +236,7 @@ operator routes under `/internal/v1/federation` require `KEELTUBE_INTERNAL_TOKEN
 - Changing the embedding model dimension requires a matching migration.
 - `KEELTUBE_EMBEDDINGS_URL` selects the HTTP embedder. If unset, core uses the in-process hash
   embedder. If the HTTP service is unavailable, feed/Explore fall back to cold start/editorial.
-- Video embeddings are refreshed by the seed and lazily before discovery requests. Actor embeddings
+- Video embeddings are refreshed lazily before discovery requests. Actor embeddings
   are cached in PostgreSQL and invalidated on watch/reaction/save/subscription writes.
 - Creator Studio media requires an S3-compatible bucket (`KEELTUBE_MEDIA_S3_*`), ffmpeg/ffprobe,
   and a private bucket. There is no local filesystem storage fallback. Uploads use presigned
@@ -247,7 +250,7 @@ operator routes under `/internal/v1/federation` require `KEELTUBE_INTERNAL_TOKEN
 ```sh
 cd keel-core
 cp .env.example .env          # fill KEELTUBE_DATABASE_URL and other values
-go run ./cmd/seed
+go run ./cmd/bootstrap
 go run ./cmd/api
 go run ./cmd/worker          # separate process; requires KEELTUBE_MEDIA_S3_*
 
@@ -350,11 +353,11 @@ python3 -m venv .venv
 . .venv/bin/ruff check app tests
 ```
 
-Known next steps: signed external ledger anchor, policy bundle loader, SLA timers, calibrated
-production classifier models, and signed/archived transparency artifacts. Viewer reports reach
+Known next steps: signed external ledger anchor, policy bundle loader, SLA timers, deploying a
+calibrated production transformer model, and signed/archived transparency artifacts. Viewer reports reach
 moderation through
 `POST /v1/signals` using `KEELTUBE_SIGNAL_INGEST_TOKEN`; core validates the subject and forwards the
-report. The devstack runs `python -m app.seed` before moderation starts to create the demo record.
+report. The devstack runs `cmd/bootstrap` before core starts to create the first verified account.
 
 ## keel-moderation-web
 
@@ -382,23 +385,25 @@ npm start
 ## keel-web
 
 Private React 19 + Vite + TypeScript + Tailwind v4 SPA. Read `keel-web/AGENTS.md` for frontend rules.
-The app is fully built against local mock data. `src/data/source.ts` is the data seam; replace it
-with API adapters. `src/state/workspace-store.tsx` owns cross-page state and persists to
-`sessionStorage`. `src/context/auth.tsx` is a local session mock.
+The app is wired to core through the Cloudflare Worker BFF. `src/data/source.ts` is the synchronous
+read seam over `src/data/cache.ts`; `src/context/data.tsx` owns route loading and `src/data/api-*.ts`
+holds the adapters. `src/state/workspace-store.tsx` owns cross-page state and mutations.
+`src/context/auth.tsx` uses the core session cookie; `VITE_DATA_SOURCE=mock` keeps the local demo
+session and fixtures.
 
-A Cloudflare Worker BFF in `worker/` already proxies `/api/*` to core with the viewer session
-cookie and `/moderation/*` to the creator-safe moderation allowlist with a server-side token. The
-browser must call the BFF, never a backend directly, and moderation tokens must never reach the
-browser.
+A Cloudflare Worker BFF in `worker/` proxies `/api/*` to core with the viewer session cookie and
+`/moderation/*` to the creator-safe moderation allowlist with a server-side token. The creator app
+uses the core creator gateway under `/api/v1/studio/moderation/*`, so no browser-held moderation
+token is needed. The browser must call the BFF, never a backend directly.
 
 Routes: public home, explore, watch, channel, search, shorts, library; auth sign-in/sign-up/
 verify/forgot/reset; guarded settings, studio, and `/studio/moderation` creator record. Staff
 moderation is intentionally not routed in this app; it lives in `keel-moderation-web`.
 
-Rules that matter: the data seam remains mock-only until the adapters land; never put moderation
-tokens in `VITE_*` or browser state; creator app must never expose moderator decision controls;
-watch-page trust record is owner-only; comments have one reply level; upload is a global modal; keep
-the versioned video editor.
+Rules that matter: the browser calls only the same-origin BFF and media URLs stay under
+`/api/v1/media/*`; never put moderation tokens in `VITE_*` or browser state; the creator app must
+never expose moderator decision controls; watch-page trust record is owner-only; comments have one
+reply level; upload is a global modal; keep the versioned video editor.
 
 Commands:
 
@@ -421,11 +426,11 @@ only until v0.2.
 ## keel-infra
 
 Private devstack. `devstack/apps.compose.yml` runs PostgreSQL (`pgvector/pgvector:pg16`), embeddings,
-seed, core, and moderation. The web app runs on the host. The media worker is an optional Compose
+bootstrap, core, and moderation. The web app runs on the host. The media worker is an optional Compose
 profile (`--profile media`) and requires an S3-compatible bucket.
 
 Default embeddings mode is hash, so the stack builds quickly. The embeddings service requires
-`KEELTUBE_EMBEDDINGS_TOKEN`; the Compose healthcheck sends it. Core and seed receive the same token.
+`KEELTUBE_EMBEDDINGS_TOKEN`; the Compose healthcheck sends it. Core receives the same token.
 The token is required by the Compose file (`:?`), so the stack fails early if it is missing.
 
 ```sh
@@ -452,13 +457,14 @@ Do not commit `devstack/.env`. Keep real tokens and credentials there or in a se
 
 ## Current limitations / likely next work
 
-- Wire `keel-web` to `keel-core`, `keel-moderation`, and `keel-embeddings`; remove the mock data seam.
+- Keep `keel-web` adapter coverage current as core endpoints evolve; the mock seam is retained only
+  for offline UI work.
 - Media processing runs in `keel-core/cmd/worker`; the API process never starts FFmpeg workers.
-- Deploy and calibrate a production transformer classifier; the bundled model and public
-  transparency endpoint are implemented. Add signed/archived transparency artifacts.
+- Deploy a calibrated production transformer classifier; the bundled model, calibration report,
+  and public transparency endpoint are implemented. Add signed/archived transparency artifacts.
 - Signed external moderation ledger anchor.
-- Stripe Connect onboarding and manual settlement are implemented in core. Viewer billing,
-  subscriptions, tax handling, and automatic payout scheduling are future work.
+- Stripe Connect onboarding, manual and automatic settlement, viewer memberships, and Stripe Tax
+  handling are implemented in core. Content-protection fingerprinting is future work.
 - Non-core OIDC token forwarding.
 - Discovery: evaluation on top of completion and impression data; production reranker deployment.
 - Production media player hardening and larger-scale federation testing.

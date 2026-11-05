@@ -18,6 +18,7 @@ MODE = "remote" if os.getenv("KEELTUBE_MODE", "mock").lower() == "remote" else "
 API_BASE = os.getenv("KEELTUBE_API_BASE_URL", "").rstrip("/")
 MOD_BASE = os.getenv("KEELTUBE_MODERATION_BASE_URL", "").rstrip("/")
 OPENAPI_URL = os.getenv("KEELTUBE_OPENAPI_URL", "")
+DEMO_VIDEO_ID = os.getenv("KEELTUBE_DEMO_VIDEO_ID", "")
 TOKEN = os.getenv("KEELTUBE_OIDC_TOKEN", "")
 
 
@@ -83,6 +84,7 @@ class DemoHandler(SimpleHTTPRequestHandler):
             "apiBaseUrl": "/api",
             "moderationBaseUrl": "/moderation",
             "openapiUrl": OPENAPI_URL,
+            "demoVideoId": DEMO_VIDEO_ID,
             "configured": MODE == "mock" or bool(API_BASE and MOD_BASE),
         }
         body = ("window.KEELTUBE_CONFIG = " + json.dumps(config, separators=(",", ":")) + ";\n").encode(

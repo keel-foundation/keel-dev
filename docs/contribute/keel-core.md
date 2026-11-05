@@ -6,11 +6,12 @@ You only need `keel-core` for API, identity, catalog, engagement, discovery, stu
 federation work. Core requires PostgreSQL (with `pgvector` for discovery); you do not need
 moderation, the web app, or NATS for most changes.
 
-**Status:** UAT-ready. The API covers identity and social sign-in, catalog and discovery, viewer
+**Status:** production-oriented. The API covers identity and social sign-in, catalog and discovery, viewer
 engagement, creator studio and media processing, watch telemetry and analytics, notifications,
 viewer reports and public trust records, playlists, ActivityPub federation, the creator moderation
 gateway, and Stripe Connect billing/settlement. `gofmt`, `go vet`, and the database tests pass. The remaining integration work
-is the `keel-web` data adapter.
+is the `keel-web` data adapter. Demo routes, fixtures, the seed command, and the dev auth fallback
+have been removed; `cmd/bootstrap` creates the first verified creator.
 
 ## Run only this module
 
@@ -20,13 +21,13 @@ cd keel-core
 
 cp .env.example .env
 # edit KEELTUBE_DATABASE_URL in .env
-go run ./cmd/seed
+go run ./cmd/bootstrap   # one-time first account; set KEELTUBE_BOOTSTRAP_*
 go run ./cmd/api
-go run ./cmd/worker   # media jobs; requires S3 configuration
+go run ./cmd/worker      # media jobs; requires S3 configuration
 ```
 
-Core listens on `127.0.0.1:8080` by default. The seed is idempotent and creates `usr_demo`,
-`ch_demo`, `vid_demo_001`, `vid_removed_001`, and `vid_private_001`.
+Core listens on `127.0.0.1:8080` by default. Bootstrap is idempotent by email and creates only the
+first verified creator account and channel. Create videos through the studio/upload APIs.
 
 ### Configuration
 
@@ -35,11 +36,9 @@ Core listens on `127.0.0.1:8080` by default. The seed is idempotent and creates 
 | `KEELTUBE_CORE_ADDR` | `127.0.0.1:8080` | Listen address |
 | `KEELTUBE_DATABASE_URL` | required | PostgreSQL DSN (set in `.env`) |
 | `KEELTUBE_CORS_ORIGINS` | `http://localhost:3000` | Comma-separated web origins |
-| `KEELTUBE_DEV_ACTOR_ID` | `usr_demo` | Dev auth principal |
-| `KEELTUBE_DEV_ACTOR_TOKEN` | unset | Optional dev bearer token |
-| `KEELTUBE_DEMO_MEDIA_URL` | web demo sample | Playback URL used by the seed |
+| `KEELTUBE_BOOTSTRAP_EMAIL` | unset | First account email for `cmd/bootstrap` |
+| `KEELTUBE_BOOTSTRAP_PASSWORD` | unset | First account password |
 | `KEELTUBE_WORKER_ADDR` | `127.0.0.1:8083` | Media worker health/status address |
-| `KEELTUBE_WEB_PUBLIC_URL` | `http://localhost:3000` | Captions URL used by the seed |
 
 ## Endpoints
 
@@ -57,9 +56,6 @@ The full contract is in `keel-spec/schemas/openapi.yaml`. Core surfaces are grou
 | Media playback | `/api/v1/media/*` |
 | Reports and trust | `/api/v1/reports`, `/api/v1/me/reports`, `/api/v1/videos/{id}/trust` |
 | Internal services | `/internal/v1/notifications`, `/internal/v1/finance/payouts`, `/internal/v1/billing/settlements`, `/internal/v1/federation` |
-
-The demo fixtures `/api/v1/channels/demo`, `/api/v1/videos/demo`, and `/api/v1/demo` remain
-available for the public demo.
 
 ## Work on a specific area
 
@@ -84,7 +80,7 @@ If a change crosses packages, run the full command before opening the PR.
 
 ## Connect the demo to local core
 
-Start local core with the seed, then run the public demo with the stage moderation endpoint:
+Start local core, create content through the API, then run the public demo with the stage moderation endpoint:
 
 ```sh
 KEELTUBE_MODE=remote \
@@ -107,7 +103,7 @@ PR.
 
 ## Docker
 
-The private dev stack builds core and a one-shot seed job with PostgreSQL:
+The private dev stack builds core and a one-time bootstrap job with PostgreSQL:
 
 ```sh
 docker compose -f keel-infra/devstack/apps.compose.yml up -d --build
